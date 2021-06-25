@@ -51,7 +51,7 @@ Handles the profile, endpoints and submission of DOIs to a registry.
     // Any additional developers beyond the author specified above.
     def developers = [[name: 'Oliver Freeman', email: 'oliver.freeman@bdi.ox.ac.uk'],
                       [name: 'James Welch', email: 'james.welch@bdi.ox.ac.uk'],
-                      [name: 'Anthony Wiliams', email: 'anthony.williams@oxfordcc.co.uk']]
+                      [name: 'Anthony Williams', email: 'anthony.williams@oxfordcc.co.uk']]
 
     // Location of the plugin's issue tracker.
     def issueManagement = [system: "YouTrack", url: "https://maurodatamapper.myjetbrains.com"]
