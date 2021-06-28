@@ -1,3 +1,10 @@
+package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
+
+import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
+
+import grails.core.GrailsApplication
+
+import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.DEVELOPMENT
 /*
  * Copyright 2020-2021 University of Oxford and Health and Social Care Information Centre, also known as NHS Digital
  *
@@ -15,12 +22,31 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
+
 
 class BootStrap {
 
-    def init = {servletContext ->
+    GrailsApplication grailsApplication
+
+    def init = { servletContext ->
+
+        loadDefaultDOIProperties()
+
     }
     def destroy = {
     }
+
+
+    void loadDefaultDOIProperties() {
+
+        Map configDOI = grailsApplication.config.maurodatamapper.digitalobjectidentifiers
+        List<ApiProperty> defaultDOIProperties = configDOI
+            .collect {
+                new ApiProperty(key: it.key, value: it.value ?: 'NOT SET',
+                                createdBy: DEVELOPMENT,
+                                category: 'Digital Object Identifier Properties')
+            }
+        ApiProperty.saveAll(defaultDOIProperties)
+    }
+
 }
