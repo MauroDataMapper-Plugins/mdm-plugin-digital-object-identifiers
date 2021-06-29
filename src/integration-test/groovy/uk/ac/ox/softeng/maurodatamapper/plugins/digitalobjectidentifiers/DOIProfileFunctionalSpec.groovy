@@ -78,10 +78,11 @@ class DOIProfileFunctionalSpec extends BaseFunctionalSpec {
 
     void 'test getting profile providers'() {
         when:
-        GET('profiles/providers')
+        HttpResponse<List<Map>> localResponse = GET('profiles/providers', Argument.listOf(Map))
 
         then:
-        verifyResponse HttpStatus.OK, response
+        verifyResponse HttpStatus.OK, localResponse
+        localResponse.body().find{it.name == "DOIProfileProviderService"}
     }
 
     void 'test get all models in profile'() {
@@ -90,6 +91,8 @@ class DOIProfileFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         verifyResponse HttpStatus.OK, response
+        responseBody().size() == 2
+        responseBody().count == 0 //currently empty
     }
 
     void 'test save profile for model'() {
@@ -102,6 +105,8 @@ class DOIProfileFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         verifyResponse HttpStatus.OK, response
+        responseBody().sections.size() == 3
+        responseBody().label == "Simple Test DataModel"
     }
 
     void 'test getting unused profiles on datamodel'() {
