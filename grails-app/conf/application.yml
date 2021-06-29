@@ -15,12 +15,6 @@ maurodatamapper:
     authority:
         name: 'Mauro Data Mapper'
         url: http://localhost
-    digitalobjectidentifiers:
-        apiKey:
-        apiUsername: 'apiUsername'
-        apiPassword:
-        prefix: 'mdm'
-        endpoint:
 grails:
     profile: rest-api-plugin
     codegen:

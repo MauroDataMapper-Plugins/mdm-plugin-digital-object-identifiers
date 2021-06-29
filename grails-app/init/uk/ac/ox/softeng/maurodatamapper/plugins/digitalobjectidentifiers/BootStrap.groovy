@@ -1,10 +1,13 @@
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
 import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
-
+import asset.pipeline.grails.AssetResourceLocator
 import grails.core.GrailsApplication
+import org.springframework.core.io.Resource
+import org.yaml.snakeyaml.Yaml
 
 import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.DEVELOPMENT
+
 /*
  * Copyright 2020-2021 University of Oxford and Health and Social Care Information Centre, also known as NHS Digital
  *
@@ -25,28 +28,37 @@ import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddre
 
 
 class BootStrap {
-
     GrailsApplication grailsApplication
+    static final Map staticProperties = [apiKey: "", apiUsername: "", apiPassword: "", prefix: "", endpoint: ""]
 
     def init = { servletContext ->
-
         loadDefaultDOIProperties()
-
     }
+
     def destroy = {
     }
 
 
     void loadDefaultDOIProperties() {
+        Map ymlProperties = grailsApplication.config.maurodatamapper.digitalobjectidentifiers
 
-        Map configDOI = grailsApplication.config.maurodatamapper.digitalobjectidentifiers
-        List<ApiProperty> defaultDOIProperties = configDOI
+        if (ymlProperties.collect { it.key }.containsAll(staticProperties.keySet())) {
+            loadProperties(ymlProperties)
+        } else { log.warn('Missing properties found in configuration, loading them from static defaults') }
+        Map mergedMap = staticProperties + ymlProperties
+        loadProperties(mergedMap)
+    }
+
+    void loadProperties(Map propertiesMap) {
+        List<ApiProperty> DOIProperties = propertiesMap
             .collect {
                 new ApiProperty(key: it.key, value: it.value ?: 'NOT SET',
                                 createdBy: DEVELOPMENT,
                                 category: 'Digital Object Identifier Properties')
             }
-        ApiProperty.saveAll(defaultDOIProperties)
+        ApiProperty.saveAll(DOIProperties)
     }
 
+
 }
+
