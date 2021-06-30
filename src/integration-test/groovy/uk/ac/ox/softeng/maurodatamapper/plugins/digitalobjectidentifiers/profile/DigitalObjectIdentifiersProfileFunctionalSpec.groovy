@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
+package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile
 
 import uk.ac.ox.softeng.maurodatamapper.core.authority.Authority
 import uk.ac.ox.softeng.maurodatamapper.core.container.Folder
@@ -73,7 +73,7 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
     }
 
     String getProfilePath() {
-        'uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers/DOIProfileProviderService'
+        'uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile/DigitalObjectIdentifiersProfileProviderService'
     }
 
     void 'test getting profile providers'() {
@@ -82,7 +82,7 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         verifyResponse HttpStatus.OK, localResponse
-        localResponse.body().find{it.name == "DOIProfileProviderService"}
+        localResponse.body().find{it.name == "DigitalObjectIdentifiersProfileProviderService"}
     }
 
     void 'test get all models in profile'() {
@@ -119,7 +119,7 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
         then:
         verifyResponse OK, localResponse
         localResponse.body().size() == 2
-        localResponse.body().first().name == 'DOIProfileProviderService'
-        localResponse.body().first().displayName == 'DOI DataCite Dataset Schema'
+        localResponse.body().find{it.name == 'DigitalObjectIdentifiersProfileProviderService'}
+        localResponse.body().find{it.displayName == 'Digital Object Identifiers DataCite Dataset Schema'}
     }
 }

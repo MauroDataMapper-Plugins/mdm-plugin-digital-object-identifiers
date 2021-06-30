@@ -30,7 +30,7 @@ class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProvider
 
     @Override
     String getDisplayName() {
-        'DOI DataCite Dataset Schema'
+        'Digital Object Identifiers DataCite Dataset Schema'
     }
 
     @Override
