@@ -15,20 +15,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile
+package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
-import uk.ac.ox.softeng.maurodatamapper.util.Utils
+class UrlMappings {
 
-import grails.boot.GrailsApp
-import grails.boot.config.GrailsAutoConfiguration
-import grails.plugins.metadata.PluginSource
-import org.springframework.context.annotation.ComponentScan
-
-@PluginSource
-@ComponentScan(basePackages = ['uk.ac.ox.softeng.maurodatamapper'])
-class Application extends GrailsAutoConfiguration {
-    static void main(String[] args) {
-        Utils.outputRuntimeArgs(Application)
-        GrailsApp.run(Application, args)
+    static mappings = {
+        // provide plugin url mappings here
     }
 }
