@@ -15,12 +15,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
+package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile
 
-class BootStrap {
+class UrlMappings {
 
-    def init = {servletContext ->
-    }
-    def destroy = {
+    static mappings = {
+        // provide plugin url mappings here
     }
 }

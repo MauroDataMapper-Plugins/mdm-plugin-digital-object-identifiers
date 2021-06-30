@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
+package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile
 
 
 import grails.plugins.Plugin

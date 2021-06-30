@@ -434,21 +434,21 @@
       {
         "fieldName": "Alternate Identifier Type",
         "metadataPropertyName": "alternateIdentifierType",
-        "description": "The type of the AlternateIdentifier.",
+        "description": "The type of the Alternate Identifier.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "Text"
       },
       {
         "fieldName": "Related Identifier Type",
-        "metadataPropertyName": "relatedIdentifierType",
-        "description": "The type of the RelatedIdentifier.",
+        "metadataPropertyName": "relatedIdentifier/type",
+        "description": "The type of the Related Identifier.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Relation Type",
+        "fieldName": "Relation Identifier Type",
         "metadataPropertyName": "relationType",
         "description": "Description of the relationship of the resource being registered (A) and the related resource (B).",
         "minMultiplicity": 1,
@@ -456,33 +456,33 @@
         "dataType": "String"
       },
       {
-        "fieldName": "Related Metadata Scheme",
-        "metadataPropertyName": "relatedMetadataScheme",
-        "description": "The name of the scheme.",
+        "fieldName": "Related Identifier Metadata Scheme",
+        "metadataPropertyName": "relatedIdentifier/metadataScheme",
+        "description": "The name of the Related Identifier Metadata Scheme.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Related Metadata Scheme URI",
-        "metadataPropertyName": "relatedMetadataSchemeURI",
-        "description": "The URI of the relatedMetadataScheme.",
+        "fieldName": "Related Identifier Metadata Scheme URI",
+        "metadataPropertyName": "relatedIdentifier/metadataSchemeURI",
+        "description": "The URI of the Related Identifier Metadata Scheme.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Related Metadata Scheme Type",
-        "metadataPropertyName": "relatedMetadataSchemeType",
-        "description": "The type of the relatedMetadataScheme, linked with the schemeURI.",
+        "fieldName": "Related Identifier Metadata Scheme Type",
+        "metadataPropertyName": "relatedIdentifier/metadataSchemeType",
+        "description": "The type of the Related Identifier Metadata Scheme, linked with the Related Identifier Metadata Scheme URI.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Resource Type General",
-        "metadataPropertyName": "resourceTypeGeneral",
-        "description": "The general type of the related resource.",
+        "fieldName": "Related Identifier Resource Type General",
+        "metadataPropertyName": "relatedIdentifier/resourceTypeGeneral",
+        "description": "The general type of the Related Identifier resource.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
@@ -689,8 +689,8 @@
       },
       {
         "fieldName": "Related Item Type",
-        "metadataPropertyName": "relatedItemType",
-        "description": "The type of the related item,e.g.,journal article; book or chapter.",
+        "metadataPropertyName": "relatedItem/type",
+        "description": "The type of the related item, e.g., journal article; book or chapter.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
@@ -705,7 +705,7 @@
       },
       {
         "fieldName": "Related Item Identifier",
-        "metadataPropertyName": "relatedItemIdentifier",
+        "metadataPropertyName": "relatedItem/identifier",
         "description": "The identifier for the related item.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
@@ -713,32 +713,32 @@
       },
       {
         "fieldName": "Related Item Identifier Type",
-        "metadataPropertyName": "relatedItemIdentifierType",
+        "metadataPropertyName": "relatedItem/identifierType",
         "description": "The type of the Identifier for the related item,e.g.,DOI.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Related Metadata Scheme",
-        "metadataPropertyName": "relatedMetadataScheme",
-        "description": "The name ofthe scheme.",
+        "fieldName": "Related Item Metadata Scheme",
+        "metadataPropertyName": "relatedItem/metadataScheme",
+        "description": "The name of the Related Item Metadata Scheme.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Related Metadata Scheme URI",
-        "metadataPropertyName": "relatedMetadataSchemeURI",
-        "description": "The URI of the relatedMetadataScheme.",
+        "fieldName": "Related Item Metadata Scheme URI",
+        "metadataPropertyName": "relatedItem/metadataSchemeURI",
+        "description": "The URI of the Related Item Metadata Scheme.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Related Metadata Scheme Type",
-        "metadataPropertyName": "schemeType",
-        "description": "The type of the relatedMetadataScheme, linked with the schemeURI.",
+        "fieldName": "Related Item Metadata Scheme Type",
+        "metadataPropertyName": "relatedItem/metadataSchemeType",
+        "description": "The type of the Related Item Metadata Scheme, linked with the Related Item Metadata Scheme URI.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
@@ -872,49 +872,49 @@
         "dataType": "Text"
       },
       {
-        "fieldName": "Contributor",
-        "metadataPropertyName": "contributor",
+        "fieldName": "Resource Contributor",
+        "metadataPropertyName": "resource/contributor",
         "description": "An institution or person identified as contributing to the development of the resource. If multiple contributors are identified, this subproperty may be repeated for each contributor.",
         "minMultiplicity": 0,
         "maxMultiplicity": -1,
         "dataType": "String"
       },
       {
-        "fieldName": "Contributor Type",
-        "metadataPropertyName": "contributorType",
+        "fieldName": "Resource Contributor Type",
+        "metadataPropertyName": "resource/contributor/type",
         "description": "The type of contributor of the resource.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Contributor Name",
-        "metadataPropertyName": "contributorName",
-        "description": "The full name of the related item contributor.",
+        "fieldName": "Resource Contributor Full Name",
+        "metadataPropertyName": "resource/contributor/fullName",
+        "description": "The full name of the contributor of the resource.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Contributor Name Type",
-        "metadataPropertyName": "contributorNameType",
-        "description": "The type of name.",
+        "fieldName": "Resource Contributor Name Type",
+        "metadataPropertyName": "resource/contributor/nameType",
+        "description": "The type of name of the contributor of the resource.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Contributor Given Name",
-        "metadataPropertyName": "contributorGivenName",
-        "description": "The personal or first name of the contributor.",
+        "fieldName": "Resource Contributor Given Name",
+        "metadataPropertyName": "resource/contributor/givenName",
+        "description": "The personal or first name of the contributor of the resource.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Contributor Family Name",
-        "metadataPropertyName": "contributorFamilyName",
-        "description": "The surname or last name of the contributor.",
+        "fieldName": "Resource Contributor Family Name",
+        "metadataPropertyName": "resource/contributor/familyName",
+        "description": "The surname or last name of the contributor of the resource.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
