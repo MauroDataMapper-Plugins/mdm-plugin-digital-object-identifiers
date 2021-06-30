@@ -1,3 +1,11 @@
+package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
+
+import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
+
+import grails.core.GrailsApplication
+
+import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.ADMIN
+
 /*
  * Copyright 2020-2021 University of Oxford and Health and Social Care Information Centre, also known as NHS Digital
  *
@@ -15,12 +23,40 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
+
 
 class BootStrap {
+    GrailsApplication grailsApplication
+    static final List<String> KNOWN_KEYS = ['username', 'password', 'prefix', 'endpoint']
+    static final String DOI_API_PROPERTY_CATEGORY = 'Digital Object Identifier Properties'
 
     def init = {servletContext ->
+        ApiProperty.withNewTransaction {
+
+            List<String> existingKeys = ApiProperty.findAllByCategory(DOI_API_PROPERTY_CATEGORY).collect{it.key}
+
+            List<ApiProperty> loaded = grailsApplication.config.maurodatamapper.digitalobjectidentifiers.collect {
+                new ApiProperty(key: it.key, value: it.value,
+                                createdBy: ADMIN,
+                                category: DOI_API_PROPERTY_CATEGORY)
+            }
+
+            KNOWN_KEYS.each {k ->
+                if (!(k in loaded.collect {it.key})) {
+                    loaded.add(new ApiProperty(key: k, value: 'NOT_SET',
+                                                      createdBy: ADMIN,
+                                                      category: DOI_API_PROPERTY_CATEGORY))
+                }
+            }
+
+            // Dont override already loaded values
+            ApiProperty.saveAll(loaded.findAll {!(it.key in existingKeys)})
+        }
+
     }
+
     def destroy = {
     }
+
 }
+
