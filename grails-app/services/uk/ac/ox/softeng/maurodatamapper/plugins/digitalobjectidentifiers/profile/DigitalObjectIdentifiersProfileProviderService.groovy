@@ -15,13 +15,13 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
+package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile
 
 import groovy.util.logging.Slf4j
 import uk.ac.ox.softeng.maurodatamapper.profile.provider.JsonProfileProviderService
 
 @Slf4j
-class DOIProfileProviderService extends JsonProfileProviderService {
+class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProviderService {
 
     @Override
     String getMetadataNamespace() {
@@ -30,7 +30,7 @@ class DOIProfileProviderService extends JsonProfileProviderService {
 
     @Override
     String getDisplayName() {
-        'DOI DataCite Dataset Schema'
+        'Digital Object Identifiers DataCite Dataset Schema'
     }
 
     @Override
@@ -40,7 +40,7 @@ class DOIProfileProviderService extends JsonProfileProviderService {
 
     @Override
     String getJsonResourceFile() {
-        return 'DataCiteDOIProfile.json'
+        return 'DataCiteDigitalObjectIdentifiersProfile.json'
     }
 
     @Override
