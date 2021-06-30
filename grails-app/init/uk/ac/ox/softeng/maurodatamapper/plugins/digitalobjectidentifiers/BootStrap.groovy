@@ -1,12 +1,10 @@
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
 import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
-import asset.pipeline.grails.AssetResourceLocator
-import grails.core.GrailsApplication
-import org.springframework.core.io.Resource
-import org.yaml.snakeyaml.Yaml
 
-import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.DEVELOPMENT
+import grails.core.GrailsApplication
+
+import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.ADMIN
 
 /*
  * Copyright 2020-2021 University of Oxford and Health and Social Care Information Centre, also known as NHS Digital
@@ -29,36 +27,36 @@ import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddre
 
 class BootStrap {
     GrailsApplication grailsApplication
-    static final Map staticProperties = [apiKey: "", apiUsername: "", apiPassword: "", prefix: "", endpoint: ""]
+    static final List<String> KNOWN_KEYS = ['username', 'password', 'prefix', 'endpoint']
+    static final String DOI_API_PROPERTY_CATEGORY = 'Digital Object Identifier Properties'
 
-    def init = { servletContext ->
-        loadDefaultDOIProperties()
+    def init = {servletContext ->
+        ApiProperty.withNewTransaction {
+
+            List<String> existingKeys = ApiProperty.findAllByCategory(DOI_API_PROPERTY_CATEGORY).collect{it.key}
+
+            List<ApiProperty> loaded = grailsApplication.config.maurodatamapper.digitalobjectidentifiers.collect {
+                new ApiProperty(key: it.key, value: it.value,
+                                createdBy: ADMIN,
+                                category: DOI_API_PROPERTY_CATEGORY)
+            }
+
+            KNOWN_KEYS.each {k ->
+                if (!(k in loaded.collect {it.key})) {
+                    loaded.add(new ApiProperty(key: k, value: 'NOT_SET',
+                                                      createdBy: ADMIN,
+                                                      category: DOI_API_PROPERTY_CATEGORY))
+                }
+            }
+
+            // Dont override already loaded values
+            ApiProperty.saveAll(loaded.findAll {!(it.key in existingKeys)})
+        }
+
     }
 
     def destroy = {
     }
-
-
-    void loadDefaultDOIProperties() {
-        Map ymlProperties = grailsApplication.config.maurodatamapper.digitalobjectidentifiers
-
-        if (ymlProperties.collect { it.key }.containsAll(staticProperties.keySet())) {
-            loadProperties(ymlProperties)
-        } else { log.warn('Missing properties found in configuration, loading them from static defaults') }
-        Map mergedMap = staticProperties + ymlProperties
-        loadProperties(mergedMap)
-    }
-
-    void loadProperties(Map propertiesMap) {
-        List<ApiProperty> DOIProperties = propertiesMap
-            .collect {
-                new ApiProperty(key: it.key, value: it.value ?: 'NOT SET',
-                                createdBy: DEVELOPMENT,
-                                category: 'Digital Object Identifier Properties')
-            }
-        ApiProperty.saveAll(DOIProperties)
-    }
-
 
 }
 

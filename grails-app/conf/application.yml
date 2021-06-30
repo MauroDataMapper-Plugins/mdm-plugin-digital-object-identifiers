@@ -15,6 +15,9 @@ maurodatamapper:
     authority:
         name: 'Mauro Data Mapper'
         url: http://localhost
+    digitalobjectidentifiers:
+        prefix: '10.80079'
+        endpoint: 'https://api.test.datacite.org'
 grails:
     profile: rest-api-plugin
     codegen:
