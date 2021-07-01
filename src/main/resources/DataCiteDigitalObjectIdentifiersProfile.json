@@ -22,7 +22,7 @@
       {
         "fieldName": "Title",
         "metadataPropertyName": "title",
-        "description": "A name or title by which a resource is known. May be the title of a datasetor the name of a piece of software.",
+        "description": "A name or title by which a resource is known. May be the title of a dataset or the name of a piece of software.",
         "minMultiplicity": 1,
         "maxMultiplicity": -1,
         "dataType": "Text"
@@ -30,7 +30,7 @@
       {
         "fieldName": "Publisher",
         "metadataPropertyName": "publisher",
-        "description": "The name of the entitythat holds, archives, publishes prints, distributes, releases, issues, or produces the resource. This property will be used to formulate the citation, so consider the prominence of the role. For software, use Publisher for the code repository. If there is an entity other than a code repository, that 'holds, archives, publishes, prints, distributes, releases, issues, or produces' the code, use the property Contributor/contributorType/hostingInstitution for the code repository.",
+        "description": "The name of the entity that holds, archives, publishes prints, distributes, releases, issues, or produces the resource. This property will be used to formulate the citation, so consider the prominence of the role. For software, use Publisher for the code repository. If there is an entity other than a code repository, that 'holds, archives, publishes, prints, distributes, releases, issues, or produces' the code, use the property Contributor/contributorType/hostingInstitution for the code repository.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
@@ -108,7 +108,7 @@
       {
         "fieldName": "Size",
         "metadataPropertyName": "size",
-        "description": "Size (e.g.,bytes, pages, inches, etc.) or duration (extent), e.g.,hours, minutes, days, etc., of a resource.",
+        "description": "Size (e.g., bytes, pages, inches, etc.) or duration (extent), e.g., hours, minutes, days, etc., of a resource.",
         "minMultiplicity": 0,
         "maxMultiplicity": -1,
         "dataType": "Text"
@@ -164,7 +164,7 @@
       {
         "fieldName": "Related Item",
         "metadataPropertyName": "relatedItem",
-        "description": "Information about a resource related to the one being registered,e.g.,a journal or book of which the article or chapter is part.",
+        "description": "Information about a resource related to the one being registered, e.g., a journal or book of which the article or chapter is part.",
         "minMultiplicity": 0,
         "maxMultiplicity": -1,
         "dataType": "String"
@@ -184,89 +184,89 @@
         "dataType": "String"
       },
       {
-        "fieldName": "Creator Name",
-        "metadataPropertyName": "creatorName",
+        "fieldName": "Creator Full Name",
+        "metadataPropertyName": "creator/fullName",
         "description": "The full name of the creator.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Name Type",
-        "metadataPropertyName": "nameType",
-        "description": "The type of name.",
+        "fieldName": "Creator Name Type",
+        "metadataPropertyName": "creator/nameType",
+        "description": "The type of name of the creator.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Given Name",
-        "metadataPropertyName": "givenName",
+        "fieldName": "Creator Given Name",
+        "metadataPropertyName": "creator/givenName",
         "description": "The personal or first name of the creator.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Family Name",
-        "metadataPropertyName": "familyName",
+        "fieldName": "Creator Family Name",
+        "metadataPropertyName": "creator/familyName",
         "description": "The surname or last name of the creator.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Name Identifier",
-        "metadataPropertyName": "nameIdentifier",
-        "description": "Uniquely identifies an individual or legal entity, according to various schemes.",
+        "fieldName": "Creator Name Identifier",
+        "metadataPropertyName": "creator/nameIdentifier",
+        "description": "Uniquely identifies an individual or legal entity, according to various schemes, of the creator.",
         "minMultiplicity": 0,
         "maxMultiplicity": -1,
         "dataType": "String"
       },
       {
-        "fieldName": "Name Identifier Scheme",
-        "metadataPropertyName": "nameIdentifierScheme",
-        "description": "The name of the name identifier scheme.",
+        "fieldName": "Creator Name Identifier Scheme",
+        "metadataPropertyName": "creator/nameIdentifierScheme",
+        "description": "The name of the name identifier scheme of the creator.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Scheme URI",
-        "metadataPropertyName": "nameIdentifierSchemeURI",
-        "description": "The URI of the name identifier scheme.",
+        "fieldName": "Creator Name Identifier Scheme URI",
+        "metadataPropertyName": "creator/nameIdentifierSchemeURI",
+        "description": "The URI of the name identifier scheme of the creator.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Affiliation",
-        "metadataPropertyName": "affiliation",
+        "fieldName": "Creator Affiliation",
+        "metadataPropertyName": "creator/affiliation",
         "description": "The organizational or institutional affiliation of the creator.",
         "minMultiplicity": 0,
         "maxMultiplicity": -1,
         "dataType": "Text"
       },
       {
-        "fieldName": "Affiliation Identifier",
-        "metadataPropertyName": "affiliationIdentifier",
+        "fieldName": "Creator Affiliation Identifier",
+        "metadataPropertyName": "creator/affiliationIdentifier",
         "description": "Uniquely identifies the organizational affiliation of the creator.",
         "minMultiplicity": 0,
         "maxMultiplicity": -1,
         "dataType": "String"
       },
       {
-        "fieldName": "Affiliation Identifier Scheme",
-        "metadataPropertyName": "affiliationIdentifierScheme",
-        "description": "The name of the affiliation identifier scheme.",
+        "fieldName": "Creator Affiliation Identifier Scheme",
+        "metadataPropertyName": "creator/affiliationIdentifierScheme",
+        "description": "The name of the affiliation identifier scheme of the creator.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Scheme URI",
-        "metadataPropertyName": "affiliationIdentifierSchemeURI",
-        "description": "The URI of the affiliation identifier scheme.",
+        "fieldName": "Creator Affiliation Identifier Scheme URI",
+        "metadataPropertyName": "creator/affiliationIdentifierSchemeURI",
+        "description": "The URI of the affiliation identifier scheme of the creator.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
@@ -328,89 +328,89 @@
         "dataType": "String"
       },
       {
-        "fieldName": "Contributor Name",
-        "metadataPropertyName": "contributorName",
+        "fieldName": "Contributor Full Name",
+        "metadataPropertyName": "contributor/fullName",
         "description": "The full name of the contributor.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Name Type",
-        "metadataPropertyName": "nameType",
-        "description": "The type of name.",
+        "fieldName": "Contributor Name Type",
+        "metadataPropertyName": "contributor/nameType",
+        "description": "The type of name of the contributor.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Given Name",
-        "metadataPropertyName": "givenName",
+        "fieldName": "Contributor Given Name",
+        "metadataPropertyName": "contributor/givenName",
         "description": "The personal or first name of the contributor.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Family Name",
-        "metadataPropertyName": "familyName",
-        "description": "Thesurname or last name of the contributor.",
+        "fieldName": "Contributor Family Name",
+        "metadataPropertyName": "contributor/familyName",
+        "description": "The surname or last name of the contributor.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Name Identifier",
-        "metadataPropertyName": "nameIdentifier",
-        "description": "Uniquely identifies an individual or legal entity, according to various schemes.",
+        "fieldName": "Contributor Name Identifier",
+        "metadataPropertyName": "contributor/nameIdentifier",
+        "description": "Uniquely identifies an individual or legal entity, according to various schemes, of the contributor.",
         "minMultiplicity": 0,
         "maxMultiplicity": -1,
         "dataType": "String"
       },
       {
-        "fieldName": "Name Identifier Scheme",
-        "metadataPropertyName": "nameIdentifierScheme",
-        "description": "The name of the name identifier scheme.",
+        "fieldName": "Contributor Name Identifier Scheme",
+        "metadataPropertyName": "contributor/nameIdentifierScheme",
+        "description": "The name of the name identifier scheme of the contributor.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Scheme URI",
-        "metadataPropertyName": "nameIdentifierSchemeURI",
-        "description": "The URI of the name identifier scheme.",
+        "fieldName": "Contributor Name Identifier Scheme URI",
+        "metadataPropertyName": "contributor/nameIdentifierSchemeURI",
+        "description": "The URI of the name identifier scheme of the contributor.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Affiliation",
-        "metadataPropertyName": "affiliation",
+        "fieldName": "Contributor Affiliation",
+        "metadataPropertyName": "contributor/affiliation",
         "description": "The organizational or institutional affiliation of the contributor.",
         "minMultiplicity": 0,
         "maxMultiplicity": -1,
         "dataType": "Text"
       },
       {
-        "fieldName": "Affiliation Identifier",
-        "metadataPropertyName": "affiliationIdentifier",
+        "fieldName": "Contributor Affiliation Identifier",
+        "metadataPropertyName": "contributor/affiliationIdentifier",
         "description": "Uniquely identifies the organizational affiliation of the contributor.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Affiliation Identifier Scheme",
-        "metadataPropertyName": "affiliationIdentifierScheme",
-        "description": "Name of the affiliation identifier scheme.",
+        "fieldName": "Contributor Affiliation Identifier Scheme",
+        "metadataPropertyName": "contributor/affiliationIdentifierScheme",
+        "description": "Name of the affiliation identifier scheme of the contributor.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Affiliation Identifier Scheme URI",
-        "metadataPropertyName": "affiliationIdentifierSchemeURI",
-        "description": "URI of the affiliation identifier scheme.",
+        "fieldName": "Contributor Affiliation Identifier Scheme URI",
+        "metadataPropertyName": "contributor/affiliationIdentifierSchemeURI",
+        "description": "URI of the affiliation identifier scheme of the contributor.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
@@ -744,64 +744,64 @@
         "dataType": "String"
       },
       {
-        "fieldName": "Creator",
-        "metadataPropertyName": "creator",
+        "fieldName": "Related Item Creator",
+        "metadataPropertyName": "relatedItem/creator",
         "description": "The institution or person responsible for creating the related resource. To supply multiple creators, repeat this property.",
         "minMultiplicity": 0,
         "maxMultiplicity": -1,
         "dataType": "String"
       },
       {
-        "fieldName": "Creator Name",
-        "metadataPropertyName": "creatorName",
+        "fieldName": "Related Item Creator Full Name",
+        "metadataPropertyName": "relatedItem/creator/fullName",
         "description": "The full name of the related item creator.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Creator Name Type",
-        "metadataPropertyName": "creatorNameType",
-        "description": "The type of name.",
+        "fieldName": "Related Item Creator Name Type",
+        "metadataPropertyName": "relatedItem/creator/nameType",
+        "description": "The type of name of the related item creator.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Creator Given Name",
-        "metadataPropertyName": "creatorGivenName",
-        "description": "The personal or first name of the creator.",
+        "fieldName": "Related Item Creator Given Name",
+        "metadataPropertyName": "relatedItem/creator/givenName",
+        "description": "The personal or first name of the related item creator.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Creator Family Name",
-        "metadataPropertyName": "creatorFamilyName",
-        "description": "The surname or last name of the creator.",
+        "fieldName": "Related Item Creator Family Name",
+        "metadataPropertyName": "relatedItem/creator/familyName",
+        "description": "The surname or last name of the related item creator.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
-        "fieldName": "Title",
-        "metadataPropertyName": "title",
+        "fieldName": "Related Item Title",
+        "metadataPropertyName": "relatedItem/title",
         "description": "Title of the related item.",
         "minMultiplicity": 1,
         "maxMultiplicity": -1,
         "dataType": "String"
       },
       {
-        "fieldName": "Title Type",
-        "metadataPropertyName": "titleType",
-        "description": "Type of the related item title. Use this subproperty to add a subtitle, translation, or alternate title to the main title. The primary title of the related DataCite Metadata Schema V 4.436item should not have a titleType subproperty.",
+        "fieldName": "Related Item Title Type",
+        "metadataPropertyName": "relatedItem/titleType",
+        "description": "Type of the related item title. Use this sub-property to add a subtitle, translation, or alternate title to the main title. The primary title of the related DataCite Metadata Schema V 4.436item should not have a titleType subproperty.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },
       {
         "fieldName": "Publication Year",
-        "metadataPropertyName": "publicationYear",
+        "metadataPropertyName": "relatedItem/publicationYear",
         "description": "The year when the item was or will be made publicly available.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
@@ -809,7 +809,7 @@
       },
       {
         "fieldName": "Volume",
-        "metadataPropertyName": "volume",
+        "metadataPropertyName": "relatedItem/volume",
         "description": "Volume of the related item",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
@@ -817,7 +817,7 @@
       },
       {
         "fieldName": "Issue",
-        "metadataPropertyName": "issue",
+        "metadataPropertyName": "relatedItem/issue",
         "description": "Issue number or name of the related item.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
@@ -825,7 +825,7 @@
       },
       {
         "fieldName": "Number",
-        "metadataPropertyName": "number",
+        "metadataPropertyName": "relatedItem/number",
         "description": "Number of the related item,e.g.,report number of article number.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
@@ -833,7 +833,7 @@
       },
       {
         "fieldName": "Number Type",
-        "metadataPropertyName": "numberType",
+        "metadataPropertyName": "relatedItem/numberType",
         "description": "Type of the related item's number,e.g., report number or article number.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
@@ -841,23 +841,23 @@
       },
       {
         "fieldName": "First Page",
-        "metadataPropertyName": "firstPage",
-        "description": "First page of the related item,e.g.,of the chapter, article, or conference paper in proceedings.",
+        "metadataPropertyName": "relatedItem/firstPage",
+        "description": "First page of the related item, e.g., of the chapter, article, or conference paper in proceedings.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "Text"
       },
       {
         "fieldName": "Last Page",
-        "metadataPropertyName": "lastPage",
-        "description": "Last page of the related item,e.g.,of the chapter, article, or conference paper in proceedings.",
+        "metadataPropertyName": "relatedItem/lastPage",
+        "description": "Last page of the related item, e.g., of the chapter, article, or conference paper in proceedings.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "Text"
       },
       {
         "fieldName": "Publisher",
-        "metadataPropertyName": "publisher",
+        "metadataPropertyName": "relatedItem/publisher",
         "description": "The name of the entity that holds, archives, publishes prints, distributes, releases, issues, or produces the resource.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
@@ -865,7 +865,7 @@
       },
       {
         "fieldName": "Edition",
-        "metadataPropertyName": "edition",
+        "metadataPropertyName": "relatedItem/edition",
         "description": "Edition or version of the related item.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
