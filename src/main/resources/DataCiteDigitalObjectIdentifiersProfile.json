@@ -67,8 +67,8 @@
       },
       {
         "fieldName": "Contributor",
-        "metadataPropertyName": "contributorType",
-        "description": "The institution or person responsible for collecting, managing, distributing, or otherwise contributing to the development of the resource.To supply multiple contributors, repeat this property.For software, if there is an alternate entity that 'holds, archives, publishes, prints, distributes, releases, issues, or produces' the code, use the contributorType 'hostingInstitution' for the code repository.",
+        "metadataPropertyName": "contributor",
+        "description": "The institution or person responsible for collecting, managing, distributing, or otherwise contributing to the development of the resource. To supply multiple contributors, repeat this property.For software, if there is an alternate entity that 'holds, archives, publishes, prints, distributes, releases, issues, or produces' the code, use the contributorType 'hostingInstitution' for the code repository.",
         "minMultiplicity": 0,
         "maxMultiplicity": -1,
         "dataType": "String"
@@ -449,7 +449,7 @@
       },
       {
         "fieldName": "Relation Identifier Type",
-        "metadataPropertyName": "relationType",
+        "metadataPropertyName": "relatedIdentifier/relationType",
         "description": "Description of the relationship of the resource being registered (A) and the related resource (B).",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
@@ -697,7 +697,7 @@
       },
       {
         "fieldName": "Relation Type",
-        "metadataPropertyName": "relationType",
+        "metadataPropertyName": "relatedItem/relationType",
         "description": "Description of the relationship of the resource being registered (A) and the related resource (B).",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
