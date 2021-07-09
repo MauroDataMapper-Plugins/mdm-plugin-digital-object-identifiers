@@ -21,6 +21,8 @@ import uk.ac.ox.softeng.maurodatamapper.core.authority.Authority
 import uk.ac.ox.softeng.maurodatamapper.core.container.Folder
 import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
 import uk.ac.ox.softeng.maurodatamapper.datamodel.bootstrap.BootstrapModels
+import uk.ac.ox.softeng.maurodatamapper.profile.ProfileService
+import uk.ac.ox.softeng.maurodatamapper.profile.provider.ProfileProviderService
 import uk.ac.ox.softeng.maurodatamapper.test.functional.BaseFunctionalSpec
 
 import grails.gorm.transactions.Transactional
@@ -48,6 +50,8 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
 
     @Shared
     UUID simpleDataModelId
+
+    ProfileService profileService
 
     @OnceBefore
     @Transactional
@@ -81,7 +85,7 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         verifyResponse HttpStatus.OK, localResponse
-        localResponse.body().find{it.name == "DigitalObjectIdentifiersProfileProviderService"}
+        localResponse.body().find { it.name == "DigitalObjectIdentifiersProfileProviderService" }
     }
 
     void 'test get all models in profile'() {
@@ -118,7 +122,27 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
         then:
         verifyResponse OK, localResponse
         localResponse.body().size() == 2
-        localResponse.body().find{it.name == 'DigitalObjectIdentifiersProfileProviderService'}
-        localResponse.body().find{it.displayName == 'Digital Object Identifiers DataCite Dataset Schema'}
+        localResponse.body().find { it.name == 'DigitalObjectIdentifiersProfileProviderService' }
+        localResponse.body().find { it.displayName == 'Digital Object Identifiers DataCite Dataset Schema' }
+    }
+
+    void 'test'() {
+        given:
+        String id = getComplexDataModelId()
+        ProfileProviderService profileProviderService =
+            profileService.findProfileProviderService('uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile',
+                                                      'DigitalObjectIdentifiersProfileProviderService',
+                                                      (getClass().getPackage().getSpecificationVersion() ?: 'SNAPSHOT'))
+
+        when:
+        POST("dataModels/${id}/profile/${getProfilePath()}",
+             [description: 'test desc', publisher: 'FT'])
+
+        then:
+        profileProviderService
+        verifyResponse HttpStatus.OK, response
+        //profileService.findMultiFacetAwareItemById(responseBody().id)
+        responseBody().sections.size() == 3
+        responseBody().label == "Simple Test DataModel"
     }
 }

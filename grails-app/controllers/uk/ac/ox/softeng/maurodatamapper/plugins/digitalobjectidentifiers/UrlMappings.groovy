@@ -21,7 +21,13 @@ class UrlMappings {
 
     static mappings = {
         group '/api', {
-            get "/$multiFacetAwareItemDomainType/$multiFacetAwareItemId/doi"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierInformation')
+            group "/${multiFacetAwareItemDomainType}/${multiFacetAwareItemId}", {
+                get "/doi"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierInformation')
+                post '/doi/submit/draft'(controller: 'digitalObjectIdentifierProvider', action: 'submit')
+                post '/doi/submit/final'(controller: 'digitalObjectIdentifierProvider', action: 'submit')
+                delete '/doi'(controller: 'digitalObjectIdentifierProvider', action: 'delete')
+            }
+
             get "/doi/$digitalObjectIdentifier"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')
             get "/doi/$doiPrefix/$doiSuffix"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')
 
