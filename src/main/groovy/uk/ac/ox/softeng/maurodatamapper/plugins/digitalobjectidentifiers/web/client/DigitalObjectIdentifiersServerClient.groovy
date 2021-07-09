@@ -66,6 +66,8 @@ class DigitalObjectIdentifiersServerClient {
         log.debug('Client created to connect to {}', hostUrl)
     }
 
+    //TODO not sure if Count and Entry etc are necessary methods, but for now shall retain
+
     Map<String, Object> getDoiProfiles(int count) {
         retrieveMapFromClient('/dois?_summary=text&_format=json&_count={count}', [count: count])
     }
