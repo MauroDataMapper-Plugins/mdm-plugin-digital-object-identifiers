@@ -15,7 +15,7 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.admin
+package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
 enum DoiStatusEnum {
 
