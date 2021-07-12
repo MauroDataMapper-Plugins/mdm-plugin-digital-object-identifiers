@@ -28,13 +28,13 @@ class DigitalObjectIdentifiersProfileController implements ResourcelessMdmContro
 
         //TODO separate error messages for draft and retired?
         //TODO doiStatusEnum may need changing
-        if (doiStatusKey != 'finalised') {
+        if (multiFacetAware.doiStatusKey != 'finalised') {
             log.error('Cannot submit {} in status {}', profile, doiStatusKey)
             throw new ApiInternalException('DP01', "Cannot submit ${profile} in status ${doiStatusKey}")
         }
 
-        if (doiStatusKey == 'finalised') {
-            //convert to JSON
+        if (multiFacetAware.doiStatusKey == 'finalised') {
+            exportedJsonBytes = digitalObjectIdentifiersProfileProviderService.exportProfile(currentUser, multiFacetAware)
             //submitToDataCite
         }
 
