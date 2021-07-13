@@ -41,7 +41,7 @@
         "description": "The year when the data was or will be made publicly available. In the case of resources such as software or dynamic data where there may be multiple releases in one year, include the Date/dateType/dateInformation property and sub-properties to provide more information about the publication or release date details.",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
-        "dataType": "Integer"
+        "dataType": "Int"
       },
       {
         "fieldName": "Resource Type",
@@ -317,7 +317,7 @@
         "description": "The classification code used for the subject term in the subject scheme.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
-        "dataType": "Integer"
+        "dataType": "Int"
       },
       {
         "fieldName": "Contributor Type",
@@ -805,7 +805,7 @@
         "description": "The year when the item was or will be made publicly available.",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
-        "dataType": "Integer"
+        "dataType": "Int"
       },
       {
         "fieldName": "Volume",
