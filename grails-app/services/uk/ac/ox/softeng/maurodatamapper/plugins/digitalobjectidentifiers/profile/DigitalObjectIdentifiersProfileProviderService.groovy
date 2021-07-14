@@ -17,17 +17,10 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile
 
-import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiBadRequestException
-import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiException
-import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiInternalException
 import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MetadataAware
-import uk.ac.ox.softeng.maurodatamapper.profile.object.Profile
 import uk.ac.ox.softeng.maurodatamapper.profile.provider.JsonProfileProviderService
-import uk.ac.ox.softeng.maurodatamapper.security.User
 
 import grails.core.GrailsApplication
-import grails.plugin.json.view.JsonViewTemplateEngine
-import groovy.text.Template
 import groovy.util.logging.Slf4j
 import org.grails.core.artefact.DomainClassArtefactHandler
 import org.springframework.beans.factory.annotation.Autowired
@@ -37,9 +30,6 @@ class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProvider
 
     @Autowired
     GrailsApplication grailsApplication
-
-    @Autowired
-    JsonViewTemplateEngine templateEngine
 
     @Override
     String getMetadataNamespace() {
@@ -64,39 +54,7 @@ class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProvider
     @Override
     List<String> profileApplicableForDomains() {
         grailsApplication.getArtefacts(DomainClassArtefactHandler.TYPE)
-            .findAll {MetadataAware.isAssignableFrom(it.clazz) && !it.isAbstract()}
+            .findAll { MetadataAware.isAssignableFrom(it.clazz) && !it.isAbstract()}
             .collect {grailsClass -> grailsClass.getName()}
-    }
-
-
-    //separate profile service? with FileType, FileExtension
-    @Override
-    ByteArrayOutputStream exportProfile(User currentUser, Profile profile) throws ApiException {
-        exportModel(profile, fileType)
-    }
-
-    ByteArrayOutputStream exportModel(Profile profile, String format) {
-        Template template = templateEngine.resolveTemplate(exportViewPath)
-
-        if (!template) {
-            log.error('Could not find template for format {} at path {}', format, exportViewPath)
-            throw new ApiInternalException('PSE02', "Could not find template for format ${format} at path ${exportViewPath}")
-        }
-
-        def writable = template.make(profile: profile)
-        def sw = new StringWriter()
-        writable.writeTo(sw)
-        ByteArrayOutputStream os = new ByteArrayOutputStream()
-        os.write(sw.toString().bytes)
-        os
-    }
-
-    @Override
-    ByteArrayOutputStream exportProfiles(User currentUser, List<Profile> profiles) throws ApiException {
-        throw new ApiBadRequestException('PSE01', "${getName()} cannot export multiple profiles")
-    }
-
-    static String getExportViewPath() {
-        '/profile/export'
     }
 }

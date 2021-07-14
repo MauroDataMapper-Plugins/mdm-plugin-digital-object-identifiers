@@ -23,9 +23,8 @@ class UrlMappings {
         group '/api', {
             group "/${multiFacetAwareItemDomainType}/${multiFacetAwareItemId}", {
                 get "/doi"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierInformation')
-                post '/doi/submit/draft'(controller: 'digitalObjectIdentifierProvider', action: 'submit')
-                post '/doi/submit/final'(controller: 'digitalObjectIdentifierProvider', action: 'submit')
-                delete '/doi'(controller: 'digitalObjectIdentifierProvider', action: 'delete')
+                post '/doi'(controller: 'digitalObjectIdentifierProvider', action: 'submit')
+                delete '/doi'(controller: 'digitalObjectIdentifierProvider', action: 'retire') //make it a post
             }
 
             get "/doi/$digitalObjectIdentifier"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')

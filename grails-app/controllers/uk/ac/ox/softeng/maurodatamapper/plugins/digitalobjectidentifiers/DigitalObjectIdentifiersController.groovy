@@ -17,10 +17,12 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
+import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiInternalException
 import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
 import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MultiFacetAware
 import uk.ac.ox.softeng.maurodatamapper.core.traits.controller.ResourcelessMdmController
 
+import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 
 @Slf4j
@@ -45,5 +47,43 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
         if (!information) return notFound(Metadata, params.multiFacetAwareItemId)
         respond params.multiFacetAwareItemId, [model: information, view: 'digitalObjectIdentifierInformation']
 
+    }
+    @Transactional
+    def submit() {
+        MultiFacetAware multiFacetAware =
+            digitalObjectIdentifiersService.findMultiFacetAwareItemByDomainTypeAndId(params.multiFacetAwareItemDomainType,
+                                                                                     params.multiFacetAwareItemId)
+        if (!multiFacetAware) {
+            return notFound(params.multiFacetAwareItemClass, params.multiFacetAwareItemId)
+        }
+
+        if(!params.submissionType || params.submissionType == 'final') {
+            digitalObjectIdentifiersService.submitDoi(multiFacetAware, params.submissionType)
+        }
+
+        if(params.submissionType == 'draft') {
+            log.error('Cannot submit {} in status draft.', params.multiFacetAwareItemId)
+            throw new ApiInternalException('DP01', "Cannot submit ${params.multiFacetAwareItemId} in status draft.")
+        }
+
+    }
+
+    @Transactional
+    def delete() {
+        MultiFacetAware multiFacetAware =
+            digitalObjectIdentifiersService.findMultiFacetAwareItemByDomainTypeAndId(params.multiFacetAwareItemDomainType,
+                                                                                     params.multiFacetAwareItemId)
+        if (!multiFacetAware) {
+            return notFound(params.multiFacetAwareItemClass, params.multiFacetAwareItemId)
+        }
+
+        digitalObjectIdentifiersService.retireDoi(multiFacetAware)
+
+        respond multiFacetAware
+    }
+
+    protected String getProfileProviderServiceId(Map params) {
+        String baseId = "${params.profileNamespace}:${params.profileName}"
+        params.profileVersion ? "${baseId}:${params.profileVersion}" : baseId
     }
 }

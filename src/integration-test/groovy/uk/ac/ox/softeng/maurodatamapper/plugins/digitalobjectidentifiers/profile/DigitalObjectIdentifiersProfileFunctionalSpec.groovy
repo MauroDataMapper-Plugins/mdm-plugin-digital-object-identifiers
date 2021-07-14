@@ -51,8 +51,6 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
     @Shared
     UUID simpleDataModelId
 
-    ProfileService profileService
-
     @OnceBefore
     @Transactional
     def checkAndSetupData() {
@@ -124,25 +122,5 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
         localResponse.body().size() == 2
         localResponse.body().find { it.name == 'DigitalObjectIdentifiersProfileProviderService' }
         localResponse.body().find { it.displayName == 'Digital Object Identifiers DataCite Dataset Schema' }
-    }
-
-    void 'test'() {
-        given:
-        String id = getComplexDataModelId()
-        ProfileProviderService profileProviderService =
-            profileService.findProfileProviderService('uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile',
-                                                      'DigitalObjectIdentifiersProfileProviderService',
-                                                      (getClass().getPackage().getSpecificationVersion() ?: 'SNAPSHOT'))
-
-        when:
-        POST("dataModels/${id}/profile/${getProfilePath()}",
-             [description: 'test desc', publisher: 'FT'])
-
-        then:
-        profileProviderService
-        verifyResponse HttpStatus.OK, response
-        //profileService.findMultiFacetAwareItemById(responseBody().id)
-        responseBody().sections.size() == 3
-        responseBody().label == "Simple Test DataModel"
     }
 }

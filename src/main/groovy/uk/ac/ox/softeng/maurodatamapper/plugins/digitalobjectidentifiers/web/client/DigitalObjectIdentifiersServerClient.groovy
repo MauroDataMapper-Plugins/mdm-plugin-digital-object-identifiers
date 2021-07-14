@@ -31,6 +31,8 @@ class DigitalObjectIdentifiersServerClient {
     private String hostUrl
     private String versionPath
 
+    //TODO remove versionPath? or just leave blank for now?
+
     DigitalObjectIdentifiersServerClient(String hostUrl, ApplicationContext applicationContext) {
         this(hostUrl, null,
              applicationContext.getBean(HttpClientConfiguration),
@@ -66,22 +68,39 @@ class DigitalObjectIdentifiersServerClient {
         log.debug('Client created to connect to {}', hostUrl)
     }
 
-    //TODO not sure if Count and Entry etc are necessary methods, but for now shall retain
-
-    Map<String, Object> getDoiProfiles(int count) {
-        retrieveMapFromClient('/dois?_summary=text&_format=json&_count={count}', [count: count])
-    }
-
-    Map<String, Object> getDoiProfileCount() {
-        retrieveMapFromClient('/dois?_summary=count&_format=json', [:])
-    }
-
     Map<String, Object> getDoiProfileEntry(String entryId) {
-        retrieveMapFromClient('/dois/{entryId}?_format=json', [entryId: entryId])
+        retrieveMapFromClient('/dois/{entryId}', [entryId: entryId])
     }
 
     URI getHostUri() {
         UriBuilder.of(hostUrl).build()
+    }
+
+    private Map<String, Object> sendMapToClient(String url, Map body) {
+        try {
+            Flowable<Map> response = client.retrieve(HttpRequest.POST(UriBuilder.of(url).build(), body),
+                                                     Argument.of(Map, String, Object)) as Flowable<Map>
+            response.blockingFirst()
+        }
+        catch (HttpClientResponseException responseException) {
+            String fullUrl = UriBuilder.of(hostUrl).path(versionPath).path(url).expand(params).toString()
+            if (responseException.status == HttpStatus.NOT_FOUND) {
+                throw new ApiBadRequestException('DOIC01', "Requested endpoint could not be found ${fullUrl}")
+            }
+            Map responseBody = extractExceptionBody(responseException)
+            List issues = responseBody.issue
+            if (issues) {
+                if (issues.first().diagnostics == 'Failed to call access method') {
+                    throw new ApiBadRequestException('DOIC01', "Requested endpoint could not be found ${fullUrl}")
+                }
+            }
+            throw new ApiInternalException('DOIC02', "Could not load resource from endpoint [${fullUrl}].\n" +
+                                                     "Response body [${responseException.response.body()}]",
+                                           responseException)
+        } catch (HttpException ex) {
+            String fullUrl = UriBuilder.of(hostUrl).path(versionPath).path(url).expand(params).toString()
+            throw new ApiInternalException('DOIC03', "Could not load resource from endpoint [${fullUrl}]", ex)
+        }
     }
 
     private Map<String, Object> retrieveMapFromClient(String url, Map params) {

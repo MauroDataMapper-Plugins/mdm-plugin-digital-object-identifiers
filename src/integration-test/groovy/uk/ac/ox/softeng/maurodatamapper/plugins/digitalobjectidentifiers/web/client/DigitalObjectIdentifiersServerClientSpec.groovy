@@ -21,39 +21,7 @@ class DigitalObjectIdentifiersServerClientSpec extends BaseIntegrationSpec {
     void setupDomainData() {
     }
 
-    void 'DOIP-01: Test the DOI profile count endpoint'() {
-        given:
-        digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient('https://api.test.datacite.org/',
-                                                                                        '',
-                                                                                        applicationContext)
-
-        when:
-        def result = digitalObjectIdentifiersServerClient.getDoiProfileCount()
-
-        then:
-        result instanceof Map
-        result.size() == 3
-        result.links.self == 'https://api.test.datacite.org/dois?_summary=count&_format=json'
-        result.data.size == 25
-    }
-
-    void 'DOIP-02: Test the DOI profile summary endpoint'() {
-        given:
-        digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient('https://api.test.datacite.org/',
-                                                                                        '',
-                                                                                        applicationContext)
-
-        when:
-        def result = digitalObjectIdentifiersServerClient.getDoiProfiles(2)
-
-        then:
-        result instanceof Map
-        result.size() == 3
-        result.links.self == 'https://api.test.datacite.org/dois?_summary=text&_count=2&_format=json'
-        result.data.size == 25
-    }
-
-    void 'DOIP-03: Test the DOI profile entry endpoint'() {
+    void 'DOIP-01: Test the DOI profile entry endpoint'() {
         given:
         digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient('https://api.test.datacite.org/',
                                                                                         '',
@@ -68,7 +36,6 @@ class DigitalObjectIdentifiersServerClientSpec extends BaseIntegrationSpec {
         result.size() == 1
         result.data.type == 'dois'
         result.data.id == entryId
-
     }
 
     void 'PUB-01: Test the DOI profile entry endpoint'() {
@@ -85,7 +52,6 @@ class DigitalObjectIdentifiersServerClientSpec extends BaseIntegrationSpec {
         result.size() == 1
         result.data.type == 'dois'
         result.data.id == entryId
-
     }
 
     void 'GEN-01: Test the DOI profile entry id for non-existent entry'() {
@@ -100,7 +66,7 @@ class DigitalObjectIdentifiersServerClientSpec extends BaseIntegrationSpec {
 
         then:
         ApiBadRequestException ex = thrown(ApiBadRequestException)
-        ex.message == 'Requested endpoint could not be found https://api.test.datacite.org/dois/non-existent-entry?_format=json'
+        ex.message == 'Requested endpoint could not be found https://api.test.datacite.org/dois/non-existent-entry'
     }
 
 }
