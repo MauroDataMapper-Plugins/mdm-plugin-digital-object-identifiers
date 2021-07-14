@@ -7,7 +7,7 @@
         "fieldName": "Identifier",
         "metadataPropertyName": "identifier",
         "description": "The Identifier is a unique string that identifies a resource.  For software, determine whether the identifier is for a specific version of a piece of software, (per the Force11 Software Citation Principles11), or for all versions.",
-        "minMultiplicity": 1,
+        "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
       },

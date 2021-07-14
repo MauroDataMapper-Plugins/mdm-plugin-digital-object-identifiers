@@ -17,11 +17,19 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile
 
-import groovy.util.logging.Slf4j
+import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MetadataAware
 import uk.ac.ox.softeng.maurodatamapper.profile.provider.JsonProfileProviderService
+
+import grails.core.GrailsApplication
+import groovy.util.logging.Slf4j
+import org.grails.core.artefact.DomainClassArtefactHandler
+import org.springframework.beans.factory.annotation.Autowired
 
 @Slf4j
 class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProviderService {
+
+    @Autowired
+    GrailsApplication grailsApplication
 
     @Override
     String getMetadataNamespace() {
@@ -40,12 +48,13 @@ class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProvider
 
     @Override
     String getJsonResourceFile() {
-        return 'DataCiteDigitalObjectIdentifiersProfile.json'
+        'DataCiteDigitalObjectIdentifiersProfile.json'
     }
 
     @Override
     List<String> profileApplicableForDomains() {
-        //leave blank for now to return any model or component
-        return []
+        grailsApplication.getArtefacts(DomainClassArtefactHandler.TYPE)
+            .findAll {MetadataAware.isAssignableFrom(it.clazz) && !it.isAbstract()}
+            .collect {grailsClass -> grailsClass.getName()}
     }
 }
