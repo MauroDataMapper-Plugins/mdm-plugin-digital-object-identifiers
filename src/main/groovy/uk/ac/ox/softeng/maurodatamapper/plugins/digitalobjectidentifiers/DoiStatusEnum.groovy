@@ -18,9 +18,22 @@
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
 enum DoiStatusEnum {
+    DRAFT("draft"),
+    FINAL("final"),
+    RETIRED("retired"),
+    NOT_APPLICABLE("not_applicable")
 
-    ACTIVE,
-    RETIRED,
-    TEST
+    private final String key
 
+    DoiStatusEnum(String key) {
+        this.key = key
+    }
+
+    String toString() {
+        return key
+    }
+
+    static DoiStatusEnum findDoiStatus(String key) {
+        values().find { it.key == key }
+    }
 }

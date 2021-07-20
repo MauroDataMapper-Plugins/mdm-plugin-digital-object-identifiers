@@ -15,99 +15,91 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.service
+package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.controller
 
 import uk.ac.ox.softeng.maurodatamapper.core.authority.Authority
 import uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress
 import uk.ac.ox.softeng.maurodatamapper.core.container.Folder
 import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
-import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MultiFacetAware
 import uk.ac.ox.softeng.maurodatamapper.datamodel.DataModel
 import uk.ac.ox.softeng.maurodatamapper.datamodel.bootstrap.BootstrapModels
 import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.DoiStatusEnum
 import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.digitalobjectidentifiers.DigitalObjectIdentifierService
-import uk.ac.ox.softeng.maurodatamapper.test.integration.BaseIntegrationSpec
+import uk.ac.ox.softeng.maurodatamapper.test.functional.BaseFunctionalSpec
 
-import grails.gorm.transactions.Rollback
+import grails.gorm.transactions.Transactional
 import grails.testing.mixin.integration.Integration
+import grails.testing.spock.OnceBefore
 import groovy.util.logging.Slf4j
+import io.micronaut.http.HttpStatus
 
 @Slf4j
 @Integration
-@Rollback
-class DigitalObjectIdentifierIntegrationSpec extends BaseIntegrationSpec {
-
-
-    DataModel simpleDataModel
-    DataModel complexDataModel
-    String doiString
-    String namespaceString
+class DigitalObjectIdentifierControllerFunctionalSpec extends BaseFunctionalSpec {
 
     DigitalObjectIdentifierService digitalObjectIdentifierService
+    DataModel simpleDataModel
+    String doiString
 
     @Override
-    void setupDomainData() {
-        log.debug('Setting up DigitalObjectIdentifierService')
-        complexDataModel = buildComplexDataModel()
+    String getResourcePath() {
+        'doi'
+    }
+
+
+    @Transactional
+    def checkAndSetupData() {
+        log.debug('Setting up DigitalObjectIdentifierController Data')
         simpleDataModel = buildSimpleDataModel()
-
-        doiString = 'testDoiDs01'
-        namespaceString = digitalObjectIdentifierService.INTERNAL_DOI_NAMESPACE
-
+        doiString = 'TestDoiAddressString'
         simpleDataModel.addToMetadata(new Metadata(
             namespace: digitalObjectIdentifierService.buildNamespaceInternal(),
             key: digitalObjectIdentifierService.IDENTIFIER_KEY,
-            value: doiString, createdBy: StandardEmailAddress.INTEGRATION_TEST))
+            value: doiString, createdBy: StandardEmailAddress.FUNCTIONAL_TEST))
         simpleDataModel.addToMetadata(new Metadata(
             namespace: digitalObjectIdentifierService.buildNamespaceInternal(),
             key: digitalObjectIdentifierService.STATUS_KEY,
-            value: DoiStatusEnum.DRAFT, createdBy: StandardEmailAddress.INTEGRATION_TEST))
-
+            value: DoiStatusEnum.DRAFT.key, createdBy: StandardEmailAddress.FUNCTIONAL_TEST))
         checkAndSave(simpleDataModel)
-
     }
 
-    @Override
+    @OnceBefore
+    @Transactional
     void preDomainDataSetup() {
         checkAndSave(new Folder(label: 'catalogue', createdBy: StandardEmailAddress.INTEGRATION_TEST))
         checkAndSave(new Authority(label: 'Test Authority', url: 'http:localhost', createdBy: StandardEmailAddress.INTEGRATION_TEST))
     }
 
 
-    void 'DS01 Testing getting an existing MultiFacetAware using the DOI'() {
-        given: "A Stored dataModel with doiMetadata"
-        setupData()
+    //    GET /api/doi/${digitalObjectIdentifier}
+    void 'DC01 test retrieving a MultiFacetItem via DOI'() {
+        given:
+        checkAndSetupData()
+        when:
+        GET("$doiString")
 
-        when: "using the DOI to get the DataModel"
-        MultiFacetAware multiFacetAware = digitalObjectIdentifierService.getMultiFacetAwareItemByDoi(doiString)
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        assert responseBody().label == simpleDataModel.label
 
-        then: "the dataModel containing the doi MetaData should be returned"
-        multiFacetAware.id == simpleDataModel.id
     }
 
+    //    GET /api/{multiFacetAwareDomainType}/{multiFacetAwareId}/doi
+    void 'DC02 test retrieving a DOI via MultiFacet Item Domain and ID'() {
+        given:
+        checkAndSetupData()
+        when:
+        GET("$simpleDataModel.domainType/$simpleDataModel.id/doi", MAP_ARG, true)
 
-    void 'DS02 Updating the status of a DOI link'() {
-        given: "A Stored dataModel with doiMetadata"
-        setupData()
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        assert responseBody().find { it.key == 'status' }.value == responseJson().find { it.key == 'status' }.value
+        assert responseBody().find { it.key == 'identifier' }.value == responseJson().find { it.key == 'identifier' }.value
 
-        when: 'the call is made to change the status'
-        digitalObjectIdentifierService.updateDoiStatus(doiString, DoiStatusEnum.TEST)
-        then: 'the model should have an updated status'
-        digitalObjectIdentifierService.getDoiStatus(doiString) == DoiStatusEnum.TEST.toString()
-
-        when: 'the call is made to change the status to retired'
-        digitalObjectIdentifierService.retireDoi(doiString)
-        then: 'the model should have an updated status of "retired"'
-        digitalObjectIdentifierService.getDoiStatus(doiString) == DoiStatusEnum.RETIRED.toString()
     }
-
 
     DataModel buildSimpleDataModel() {
         BootstrapModels.buildAndSaveSimpleDataModel(messageSource, testFolder, testAuthority)
-    }
-
-    DataModel buildComplexDataModel() {
-        BootstrapModels.buildAndSaveComplexDataModel(messageSource, testFolder, testAuthority)
     }
 
     Folder getTestFolder() {
@@ -117,5 +109,8 @@ class DigitalObjectIdentifierIntegrationSpec extends BaseIntegrationSpec {
     Authority getTestAuthority() {
         Authority.findByLabel('Test Authority')
     }
-}
 
+    Map responseJson() {
+        [identifier: 'TestDoiAddressString', status: 'draft']
+    }
+}

@@ -46,8 +46,7 @@ class DigitalObjectIdentifierService {
 
     MultiFacetAware getMultiFacetAwareItemByDoi(String doi) {
         Metadata md = getIdentifierMetadataByDoi(doi)
-        findMultiFacetAwareService(md.multiFacetAwareItemDomainType)
-            .get(md.multiFacetAwareItemId)
+        findMultiFacetAwareService(md.multiFacetAwareItemDomainType).get(md.multiFacetAwareItemId)
 
     }
 
@@ -61,8 +60,7 @@ class DigitalObjectIdentifierService {
     }
 
     Metadata getIdentifierMetadataByDoi(String doi) {
-        Metadata.byNamespaceAndKey(buildNamespaceInternal(), IDENTIFIER_KEY).
-            eq('value', doi).get()
+        Metadata.byNamespaceAndKey(buildNamespaceInternal(), IDENTIFIER_KEY).eq('value', doi).get()
     }
 
     void retireDoi(String doi) {
@@ -75,13 +73,25 @@ class DigitalObjectIdentifierService {
             .find { it.key == STATUS_KEY }.value
     }
 
+
+    List<Metadata> getByMultiFacetAwareDomainTypeAndId(String domainType, String multiFacetAwareId) {
+        List<Metadata> metadataList = new ArrayList<>()
+        List<Metadata> temp = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(UUID.fromString(multiFacetAwareId), buildNamespaceInternal())
+        metadataList.add(temp.find { it.key == IDENTIFIER_KEY })
+        metadataList.add(temp.find { it.key == STATUS_KEY })
+        metadataList
+    }
+
+
+    String buildNamespaceInternal() {
+        "${digitalObjectIdentifiersProfileProviderService.metadataNamespace}.${INTERNAL_DOI_NAMESPACE}"
+    }
+
+
     MultiFacetAwareService findMultiFacetAwareService(String multiFacetAwareDomainType) {
         MultiFacetAwareService service = multiFacetAwareServices.find { it.handles(multiFacetAwareDomainType) }
         if (!service) throw new ApiBadRequestException('DOIS01', "No supporting service for ${multiFacetAwareDomainType}")
         return service
     }
 
-    String buildNamespaceInternal() {
-        "${digitalObjectIdentifiersProfileProviderService.metadataNamespace}.${INTERNAL_DOI_NAMESPACE}"
-    }
 }
