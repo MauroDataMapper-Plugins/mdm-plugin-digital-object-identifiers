@@ -3,9 +3,8 @@ package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 import uk.ac.ox.softeng.maurodatamapper.core.authority.Authority
 import uk.ac.ox.softeng.maurodatamapper.core.container.Folder
 import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
+import uk.ac.ox.softeng.maurodatamapper.datamodel.DataModel
 import uk.ac.ox.softeng.maurodatamapper.datamodel.bootstrap.BootstrapModels
-import uk.ac.ox.softeng.maurodatamapper.profile.ProfileService
-import uk.ac.ox.softeng.maurodatamapper.profile.provider.ProfileProviderService
 import uk.ac.ox.softeng.maurodatamapper.test.functional.BaseFunctionalSpec
 
 import grails.gorm.transactions.Transactional
@@ -15,11 +14,13 @@ import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpStatus
 import spock.lang.Shared
 
+import java.net.http.HttpResponse
+
 import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.getFUNCTIONAL_TEST
 
 @Slf4j
 @Integration
-class DigitalObjectIdentifiersServiceSpec extends BaseFunctionalSpec {
+class DigitalObjectIdentifiersServiceFunctionalSpec extends BaseFunctionalSpec {
 
     @Shared
     Folder folder
@@ -29,8 +30,6 @@ class DigitalObjectIdentifiersServiceSpec extends BaseFunctionalSpec {
 
     @Shared
     UUID simpleDataModelId
-
-    ProfileService profileService
 
     @Override
     String getResourcePath() {
@@ -58,26 +57,28 @@ class DigitalObjectIdentifiersServiceSpec extends BaseFunctionalSpec {
         sessionFactory.currentSession.flush()
     }
 
-
-
-    void 'test'() {
+    void 'test Doi endpoint end to end with good profile metadata'() {
         given:
-        String id = getComplexDataModelId()
-        ProfileProviderService profileProviderService =
-            profileService.findProfileProviderService('uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile',
-                                                      'DigitalObjectIdentifiersProfileProviderService',
-                                                      (getClass().getPackage().getSpecificationVersion() ?: 'SNAPSHOT'))
+        DataModel dataModel = buildComplexDataModel()
+        //TODO finish this test, second test with bad profile metadata
+        //add profile metadata
 
         when:
-        POST("dataModels/${id}/profile/${getProfilePath()}",
-             [description: 'test desc', publisher: 'FT'])
+        POST("${domainType}/${id}/doi", Map)
 
-        then:
-        profileProviderService
-        verifyResponse HttpStatus.OK, response
-        //profileService.findMultiFacetAwareItemById(responseBody().id)
-        responseBody().sections.size() == 3
-        responseBody().label == "Simple Test DataModel"
+
+    }
+
+    DataModel buildComplexDataModel() {
+        BootstrapModels.buildAndSaveComplexDataModel(messageSource, testFolder, testAuthority)
+    }
+
+    Folder getTestFolder() {
+        Folder.findByLabel('catalogue')
+    }
+
+    Authority getTestAuthority() {
+        Authority.findByLabel('Test Authority')
     }
 
 }

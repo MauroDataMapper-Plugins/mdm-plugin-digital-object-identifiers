@@ -1,8 +1,10 @@
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.web.client
 
 import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiBadRequestException
+import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiInternalException
 import uk.ac.ox.softeng.maurodatamapper.test.integration.BaseIntegrationSpec
 
+import grails.core.GrailsApplication
 import grails.testing.mixin.integration.Integration
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,6 +15,8 @@ import org.springframework.context.ApplicationContext
 class DigitalObjectIdentifiersServerClientSpec extends BaseIntegrationSpec {
 
     DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient
+    @Autowired
+    GrailsApplication grailsApplication
 
     @Autowired
     ApplicationContext applicationContext
@@ -21,52 +25,151 @@ class DigitalObjectIdentifiersServerClientSpec extends BaseIntegrationSpec {
     void setupDomainData() {
     }
 
-    void 'DOIP-01: Test the DOI profile entry endpoint'() {
+    void 'DOI-01: Test posting to DataCite'() {
         given:
-        digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient('https://api.test.datacite.org/',
-                                                                                        '',
-                                                                                        applicationContext)
-        String entryId = '10.21985/n2-f3hw-vf87'
+        Map props =  grailsApplication.config.maurodatamapper.digitalobjectidentifiers
+        String entryId = UUID.randomUUID()
+        log.debug(entryId)
+        String body = '''
+{
+    "data":
+    {
+        "attributes":
+        {
+            "doi":"10.80079/''' + entryId + '''"
+        }
+    }
+}
+'''
+
+        expect:
+        props
+        props.username
+        props.password
+        props.prefix == '10.80079'
+        props.endpoint == 'https://api.test.datacite.org'
 
         when:
-        def result = digitalObjectIdentifiersServerClient.getDoiProfileEntry(entryId)
+        digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(props.endpoint,
+                                                                                        "dois",
+                                                                                        applicationContext)
+
+        and:
+        digitalObjectIdentifiersServerClient.sendMapToClient('',
+                                                             body,
+                                                             props.username,
+                                                             props.password)
 
         then:
-        result instanceof Map
-        result.size() == 1
-        result.data.type == 'dois'
-        result.data.id == entryId
+        digitalObjectIdentifiersServerClient.retrieveMapFromClient(props.prefix + '/' + entryId,
+                                                                   props.username,
+                                                                   props.password)
+
     }
 
-    void 'PUB-01: Test the DOI profile entry endpoint'() {
+    void 'DOI-02: Test posting to DataCite without usr/pwd authentication'() {
         given:
-        digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient('https://api.test.datacite.org/',
-                                                                                        applicationContext)
-        String entryId = '10.21985/n2-f3hw-vf87'
-
-        when:
-        def result = digitalObjectIdentifiersServerClient.getDoiProfileEntry(entryId)
-
-        then:
-        result instanceof Map
-        result.size() == 1
-        result.data.type == 'dois'
-        result.data.id == entryId
+        Map props =  grailsApplication.config.maurodatamapper.digitalobjectidentifiers
+        String entryId = UUID.randomUUID()
+        log.debug(entryId)
+        String body = '''
+{
+    "data":
+    {
+        "type":"dois",
+        "attributes":
+        {
+            "doi":"10.80079/''' + entryId + '''"
+        }
     }
+}
+'''
 
-    void 'GEN-01: Test the DOI profile entry id for non-existent entry'() {
-        given:
-        digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient('https://api.test.datacite.org/',
-                                                                                        '',
-                                                                                        applicationContext)
-        String entryId = 'non-existent-entry'
+        expect:
+        props
+        props.username
+        props.password
+        props.prefix == '10.80079'
+        props.endpoint == 'https://api.test.datacite.org'
 
         when:
-        digitalObjectIdentifiersServerClient.getDoiProfileEntry(entryId)
+        digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(props.endpoint,
+                                                                                        "dois",
+                                                                                        applicationContext)
+
+        and:
+        digitalObjectIdentifiersServerClient.sendMapToClient('',
+                                                             body,
+                                                             '',
+                                                             '')
 
         then:
         ApiBadRequestException ex = thrown(ApiBadRequestException)
-        ex.message == 'Requested endpoint could not be found https://api.test.datacite.org/dois/non-existent-entry'
+        ex.status.code == 400
     }
 
+    void 'DOI-03: Test posting to DataCite with unauthorised DOI prefix'() {
+        given:
+        Map props =  grailsApplication.config.maurodatamapper.digitalobjectidentifiers
+        String entryId = UUID.randomUUID()
+        log.debug(entryId)
+        String body = '''
+{
+    "data":
+    {
+        "type":"dois",
+        "attributes":
+        {
+            "doi":"10.00000/''' + entryId + '''"
+        }
+    }
+}
+'''
+
+        expect:
+        props
+        props.username
+        props.password
+        props.prefix == '10.80079'
+        props.endpoint == 'https://api.test.datacite.org'
+
+        when:
+        digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(props.endpoint,
+                                                                                        "dois",
+                                                                                        applicationContext)
+
+        and:
+        digitalObjectIdentifiersServerClient.sendMapToClient('',
+                                                             body,
+                                                             props.username,
+                                                             props.password)
+
+        then:
+        ApiInternalException ex = thrown(ApiInternalException)
+        ex.cause.response.status.code == 403
+    }
+
+    /**
+     * Method bare bones body
+     * takes variable prefix
+     * creates minimal info
+     * prefix: 10.80079
+     * status: draft
+     *
+     * gets back suffix
+     * save suffix on to profile
+     * generate body with status finalised
+     *
+     * if submission type finalised, check for suffix
+     * without suffix,
+     */
+
+
+
+    /**
+     *
+     * Another test where we post with the "prefix" field which gets us the "suffix" using "draft" state
+     * then we post using the finalised state with the "prefix" and "suffix" (and probably the "doi") at this point we will also post the URL
+     *
+     */
 }

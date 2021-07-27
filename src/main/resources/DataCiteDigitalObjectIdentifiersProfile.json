@@ -172,8 +172,8 @@
     ]
   },
   {
-    "sectionName": "Additional DataCite DOI Fields",
-    "sectionDescription": "Additional summary metadata fields for DOI profiles.",
+    "sectionName": "Optional DataCite DOI Fields",
+    "sectionDescription": "Optional summary metadata fields for DOI profiles.",
     "fields": [
       {
         "fieldName": "Identifier Type",

@@ -48,8 +48,9 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
         respond params.multiFacetAwareItemId, [model: information, view: 'digitalObjectIdentifierInformation']
 
     }
+
     @Transactional
-    def submit() {
+    def submit(Map params) {
         MultiFacetAware multiFacetAware =
             digitalObjectIdentifiersService.findMultiFacetAwareItemByDomainTypeAndId(params.multiFacetAwareItemDomainType,
                                                                                      params.multiFacetAwareItemId)
@@ -65,11 +66,10 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
             log.error('Cannot submit {} in status draft.', params.multiFacetAwareItemId)
             throw new ApiInternalException('DP01', "Cannot submit ${params.multiFacetAwareItemId} in status draft.")
         }
-
     }
 
     @Transactional
-    def delete() {
+    def delete(Map params) {
         MultiFacetAware multiFacetAware =
             digitalObjectIdentifiersService.findMultiFacetAwareItemByDomainTypeAndId(params.multiFacetAwareItemDomainType,
                                                                                      params.multiFacetAwareItemId)
@@ -77,7 +77,7 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
             return notFound(params.multiFacetAwareItemClass, params.multiFacetAwareItemId)
         }
 
-        digitalObjectIdentifiersService.retireDoi(multiFacetAware)
+        digitalObjectIdentifiersService.retireDoi(multiFacetAware, params.submissionType)
 
         respond multiFacetAware
     }

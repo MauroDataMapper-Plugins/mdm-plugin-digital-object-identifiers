@@ -29,9 +29,7 @@ class DigitalObjectIdentifiersServerClient {
 
     private HttpClient client
     private String hostUrl
-    private String versionPath
-
-    //TODO remove versionPath? or just leave blank for now?
+    private String contextPath
 
     DigitalObjectIdentifiersServerClient(String hostUrl, ApplicationContext applicationContext) {
         this(hostUrl, null,
@@ -42,8 +40,8 @@ class DigitalObjectIdentifiersServerClient {
         )
     }
 
-    DigitalObjectIdentifiersServerClient(String hostUrl, String versionPath, ApplicationContext applicationContext) {
-        this(hostUrl, versionPath,
+    DigitalObjectIdentifiersServerClient(String hostUrl, String contextPath, ApplicationContext applicationContext) {
+        this(hostUrl, contextPath,
              applicationContext.getBean(HttpClientConfiguration),
              new DefaultThreadFactory(MultithreadEventLoopGroup),
              applicationContext.getBean(NettyClientSslBuilder),
@@ -51,16 +49,16 @@ class DigitalObjectIdentifiersServerClient {
         )
     }
 
-    DigitalObjectIdentifiersServerClient(String hostUrl, String versionPath,
+    DigitalObjectIdentifiersServerClient(String hostUrl, String contextPath,
                                          HttpClientConfiguration httpClientConfiguration,
                                          ThreadFactory threadFactory,
                                          NettyClientSslBuilder nettyClientSslBuilder,
                                          MediaTypeCodecRegistry mediaTypeCodecRegistry) {
         this.hostUrl = hostUrl
-        this.versionPath = versionPath
+        this.contextPath = contextPath
         client = new DefaultHttpClient(LoadBalancer.fixed(hostUrl.toURL()),
                                        httpClientConfiguration,
-                                       versionPath,
+                                       this.contextPath,
                                        threadFactory,
                                        nettyClientSslBuilder,
                                        mediaTypeCodecRegistry,
@@ -76,56 +74,44 @@ class DigitalObjectIdentifiersServerClient {
         UriBuilder.of(hostUrl).build()
     }
 
-    private Map<String, Object> sendMapToClient(String url, Map body) {
+    Map<String, Object> sendMapToClient(String url, Map body, String username, String password) {
         try {
-            Flowable<Map> response = client.retrieve(HttpRequest.POST(UriBuilder.of(url).build(), body),
+            HttpRequest request = HttpRequest.POST(UriBuilder.of(url).build(), body).basicAuth(username, password)
+            Flowable<Map> response = client.retrieve(request,
                                                      Argument.of(Map, String, Object)) as Flowable<Map>
             response.blockingFirst()
         }
         catch (HttpClientResponseException responseException) {
-            String fullUrl = UriBuilder.of(hostUrl).path(versionPath).path(url).expand(params).toString()
+            String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()
             if (responseException.status == HttpStatus.NOT_FOUND) {
                 throw new ApiBadRequestException('DOIC01', "Requested endpoint could not be found ${fullUrl}")
-            }
-            Map responseBody = extractExceptionBody(responseException)
-            List issues = responseBody.issue
-            if (issues) {
-                if (issues.first().diagnostics == 'Failed to call access method') {
-                    throw new ApiBadRequestException('DOIC01', "Requested endpoint could not be found ${fullUrl}")
-                }
             }
             throw new ApiInternalException('DOIC02', "Could not load resource from endpoint [${fullUrl}].\n" +
                                                      "Response body [${responseException.response.body()}]",
                                            responseException)
         } catch (HttpException ex) {
-            String fullUrl = UriBuilder.of(hostUrl).path(versionPath).path(url).expand(params).toString()
+            String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()
             throw new ApiInternalException('DOIC03', "Could not load resource from endpoint [${fullUrl}]", ex)
         }
     }
 
-    private Map<String, Object> retrieveMapFromClient(String url, Map params) {
+    private Map<String, Object> retrieveMapFromClient(String url, String username, String password) {
         try {
-            Flowable<Map> response = client.retrieve(HttpRequest.GET(UriBuilder.of(url)
-                                                                         .expand(params)), Argument.of(Map, String, Object)) as Flowable<Map>
+            HttpRequest request = HttpRequest.GET(UriBuilder.of(url).build()).basicAuth(username, password)
+            Flowable<Map> response = client.retrieve(request,
+                                                     Argument.of(Map, String, Object)) as Flowable<Map>
             response.blockingFirst()
         }
         catch (HttpClientResponseException responseException) {
-            String fullUrl = UriBuilder.of(hostUrl).path(versionPath).path(url).expand(params).toString()
+            String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()
             if (responseException.status == HttpStatus.NOT_FOUND) {
                 throw new ApiBadRequestException('DOIC01', "Requested endpoint could not be found ${fullUrl}")
-            }
-            Map responseBody = extractExceptionBody(responseException)
-            List issues = responseBody.issue
-            if (issues) {
-                if (issues.first().diagnostics == 'Failed to call access method') {
-                    throw new ApiBadRequestException('DOIC01', "Requested endpoint could not be found ${fullUrl}")
-                }
             }
             throw new ApiInternalException('DOIC02', "Could not load resource from endpoint [${fullUrl}].\n" +
                                                       "Response body [${responseException.response.body()}]",
                                            responseException)
         } catch (HttpException ex) {
-            String fullUrl = UriBuilder.of(hostUrl).path(versionPath).path(url).expand(params).toString()
+            String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()
             throw new ApiInternalException('DOIC03', "Could not load resource from endpoint [${fullUrl}]", ex)
         }
     }
