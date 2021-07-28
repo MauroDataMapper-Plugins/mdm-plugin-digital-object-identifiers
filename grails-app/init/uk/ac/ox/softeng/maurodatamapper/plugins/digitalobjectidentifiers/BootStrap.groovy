@@ -1,8 +1,11 @@
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
 import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
+import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile.DigitalObjectIdentifiersProfileProviderService
+import uk.ac.ox.softeng.maurodatamapper.util.GormUtils
 
 import grails.core.GrailsApplication
+import org.springframework.context.MessageSource
 
 import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.ADMIN
 
@@ -26,7 +29,10 @@ import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddre
 
 
 class BootStrap {
+    MessageSource messageSource
     GrailsApplication grailsApplication
+
+    DigitalObjectIdentifiersProfileProviderService digitalObjectIdentifiersProfileProviderService
     static final List<String> KNOWN_KEYS = ['username', 'password', 'prefix', 'endpoint']
     static final String DOI_API_PROPERTY_CATEGORY = 'Digital Object Identifier Properties'
 

@@ -62,10 +62,7 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
             digitalObjectIdentifiersService.submitDoi(multiFacetAware, params.submissionType)
         }
 
-        if(params.submissionType == 'draft') {
-            log.error('Cannot submit {} in status draft.', params.multiFacetAwareItemId)
-            throw new ApiInternalException('DP01', "Cannot submit ${params.multiFacetAwareItemId} in status draft.")
-        }
+        respond multiFacetAware
     }
 
     @Transactional
