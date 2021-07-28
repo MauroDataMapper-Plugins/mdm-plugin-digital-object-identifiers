@@ -95,6 +95,27 @@ class DigitalObjectIdentifiersServerClient {
         }
     }
 
+    Map<String, Object> putMapToClient(String url, Map body, String username, String password) {
+        try {
+            HttpRequest request = HttpRequest.PUT(UriBuilder.of(url).build(), body).basicAuth(username, password)
+            Flowable<Map> response = client.retrieve(request,
+                                                     Argument.of(Map, String, Object)) as Flowable<Map>
+            response.blockingFirst()
+        }
+        catch (HttpClientResponseException responseException) {
+            String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()
+            if (responseException.status == HttpStatus.NOT_FOUND) {
+                throw new ApiBadRequestException('DOIC01', "Requested endpoint could not be found ${fullUrl}")
+            }
+            throw new ApiInternalException('DOIC02', "Could not load resource from endpoint [${fullUrl}].\n" +
+                                                     "Response body [${responseException.response.body()}]",
+                                           responseException)
+        } catch (HttpException ex) {
+            String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()
+            throw new ApiInternalException('DOIC03', "Could not load resource from endpoint [${fullUrl}]", ex)
+        }
+    }
+
     private Map<String, Object> retrieveMapFromClient(String url, String username, String password) {
         try {
             HttpRequest request = HttpRequest.GET(UriBuilder.of(url).build()).basicAuth(username, password)
