@@ -50,7 +50,7 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
     }
 
     @Transactional
-    def submit(Map params) {
+    def submit() {
         MultiFacetAware multiFacetAware =
             digitalObjectIdentifiersService.findMultiFacetAwareItemByDomainTypeAndId(params.multiFacetAwareItemDomainType,
                                                                                      params.multiFacetAwareItemId)
@@ -58,7 +58,7 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
             return notFound(params.multiFacetAwareItemClass, params.multiFacetAwareItemId)
         }
 
-        if(!params.submissionType || params.submissionType == 'final') {
+        if(!params.submissionType || params.submissionType == 'final' || params.submissionType == 'draft') {
             digitalObjectIdentifiersService.submitDoi(multiFacetAware, params.submissionType)
         }
 
@@ -69,7 +69,7 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
     }
 
     @Transactional
-    def delete(Map params) {
+    def retire() {
         MultiFacetAware multiFacetAware =
             digitalObjectIdentifiersService.findMultiFacetAwareItemByDomainTypeAndId(params.multiFacetAwareItemDomainType,
                                                                                      params.multiFacetAwareItemId)

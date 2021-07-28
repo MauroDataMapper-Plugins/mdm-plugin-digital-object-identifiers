@@ -41,6 +41,7 @@ class DigitalObjectIdentifiersService {
     @Autowired
     List<MultiFacetAwareService> multiFacetAwareServices
 
+    @Autowired
     ApplicationContext applicationContext
 
     static final String INTERNAL_DOI_NAMESPACE = 'internal'
@@ -173,18 +174,18 @@ class DigitalObjectIdentifiersService {
                                                                                                usernameProperty,
                                                                                                passwordProperty)
 
-        String suffix = responseDraftBody.suffix
-        multiFacetAware.suffix = responseDraftBody.suffix
-        multiFacetAware.status = responseDraftBody.status
-
-        Map finalBody = createEventDoiBody(multiFacetAware, prefixProperty, suffix, 'publish')
-        if(!finalBody.url){
-            String url = "${siteUrlProperty.value}/#/doi/${prefixProperty.value}/${suffix}"
-        }
-        Map<String,Object> responseFinalBody = digitalObjectIdentifiersServerClient.putMapToClient('',
-                                                                                               finalBody,
-                                                                                               usernameProperty,
-                                                                                               passwordProperty)
+//        String suffix = responseDraftBody.suffix
+//        multiFacetAware.suffix = responseDraftBody.suffix
+//        multiFacetAware.status = responseDraftBody.status
+//
+//        Map finalBody = createEventDoiBody(multiFacetAware, prefixProperty, suffix, 'publish')
+//        if(!finalBody.url){
+//            String url = "${siteUrlProperty.value}/#/doi/${prefixProperty.value}/${suffix}"
+//        }
+//        Map<String,Object> responseFinalBody = digitalObjectIdentifiersServerClient.putMapToClient('',
+//                                                                                               finalBody,
+//                                                                                               usernameProperty,
+//                                                                                               passwordProperty)
 
 
         //save profile data
@@ -192,8 +193,6 @@ class DigitalObjectIdentifiersService {
     }
 
     Map createAttributesBlock(MultiFacetAware multiFacetAware) {
-
-        //TODO delete method? replace with xml generation?
 
         def profile = digitalObjectIdentifiersProfileProviderService.createProfileFromEntity(multiFacetAware)
 
@@ -212,17 +211,15 @@ class DigitalObjectIdentifiersService {
         body
     }
 
-    Map createDraftDoiBody(MultiFacetAware multiFacetAware, String prefix) {
-
-        //todo xml body - createAttributes method to become createXml method?
+    Map createDraftDoiBody(Map xmlencoded, String prefix) {
 
         Map doiBody = '''
 {
     "data": {
         "type": "dois",
         "attributes": {
-            "prefix": "''' + prefix + '",'
-        + createAttributesBlock(multiFacetAware) + '''
+            "prefix": "${prefix}",
+            "xml":"${xmlencoded}"
         }
     }
 }
@@ -231,9 +228,7 @@ class DigitalObjectIdentifiersService {
         doiBody
     }
 
-    Map createEventDoiBody(MultiFacetAware multiFacetAware, String prefix, String suffix, String event) {
-
-        //TODO xmlBody
+    Map createEventDoiBody(Map attributesBlock, String prefix, String suffix, String event) {
 
         Map doiBody = '''
 {
@@ -245,7 +240,7 @@ class DigitalObjectIdentifiersService {
             "doi": "''' + prefix + '/' + suffix + '''",
             "prefix": "''' + prefix + '''",
             "suffix": "''' + suffix + '''",
-            "xml":"''' + xmlBody + '''"
+            ''' + attributesBlock + '''"
 
         }
     }
@@ -256,11 +251,11 @@ class DigitalObjectIdentifiersService {
 
     String getStatus(MultiFacetAware multiFacetAware) {
         List<Metadata> internalMetadata = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(multiFacetAware.id,
-                                                                                                     "${digitalObjectIdentifiersProfileProviderService.metadataNamespace}.internal")
+                                                                                                     "${digitalObjectIdentifiersProfileProviderService.metadataNamespace}")
         internalMetadata.find {it.key = 'status'}
     }
 
-    MultiFacetAware findMultiFacetAwareByDomainTypeAndId(String domainType, String multiFacetAwareItemIdString) {
+    MultiFacetAware findMultiFacetAwareItemByDomainTypeAndId(String domainType, String multiFacetAwareItemIdString) {
         findMultiFacetAwareItemByDomainTypeAndId(domainType, UUID.fromString(multiFacetAwareItemIdString))
     }
 

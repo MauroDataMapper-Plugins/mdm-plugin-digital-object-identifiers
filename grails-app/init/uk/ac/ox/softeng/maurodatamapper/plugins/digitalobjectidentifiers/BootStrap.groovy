@@ -52,7 +52,6 @@ class BootStrap {
             // Dont override already loaded values
             ApiProperty.saveAll(loaded.findAll {!(it.key in existingKeys)})
         }
-
     }
 
     def destroy = {
