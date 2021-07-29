@@ -15,9 +15,9 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.digitalobjectidentifiers
+package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
-import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiBadRequestException
+
 import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
 import uk.ac.ox.softeng.maurodatamapper.core.facet.MetadataService
 import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MultiFacetAware
@@ -27,15 +27,10 @@ import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile
 
 import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
-import org.springframework.beans.factory.annotation.Autowired
 
 @Slf4j
 @Transactional
-class DigitalObjectIdentifierService {
-
-    @Autowired(required = false)
-    List<MultiFacetAwareService> multiFacetAwareServices
-
+class DigitalObjectIdentifiersService {
 
     MetadataService metadataService
     DigitalObjectIdentifiersProfileProviderService digitalObjectIdentifiersProfileProviderService
@@ -44,22 +39,22 @@ class DigitalObjectIdentifierService {
     static final String IDENTIFIER_KEY = 'identifier'
     static final String STATUS_KEY = 'status'
 
-    MultiFacetAware getMultiFacetAwareItemByDoi(String doi) {
-        Metadata md = getIdentifierMetadataByDoi(doi)
+    MultiFacetAware findMultiFacetAwareItemByDoi(String doi) {
+        Metadata md = findIdentifierMetadataByDoi(doi)
+        if (!md) return null
         findMultiFacetAwareService(md.multiFacetAwareItemDomainType).get(md.multiFacetAwareItemId)
-
     }
 
     void updateDoiStatus(String doi, DoiStatusEnum status) {
-        Metadata identifier = getIdentifierMetadataByDoi(doi)
+        Metadata identifier = findIdentifierMetadataByDoi(doi)
         Metadata statusMetadata =
             metadataService.findAllByMultiFacetAwareItemIdAndNamespace(identifier.multiFacetAwareItemId, buildNamespaceInternal())
-                .find { it.key == STATUS_KEY }
+                .find {it.key == STATUS_KEY}
         statusMetadata.value = status
         metadataService.save(statusMetadata)
     }
 
-    Metadata getIdentifierMetadataByDoi(String doi) {
+    Metadata findIdentifierMetadataByDoi(String doi) {
         Metadata.byNamespaceAndKey(buildNamespaceInternal(), IDENTIFIER_KEY).eq('value', doi).get()
     }
 
@@ -68,18 +63,17 @@ class DigitalObjectIdentifierService {
     }
 
     String getDoiStatus(String doi) {
-        Metadata identifierMetadata = getIdentifierMetadataByDoi(doi)
+        Metadata identifierMetadata = findIdentifierMetadataByDoi(doi)
         metadataService.findAllByMultiFacetAwareItemIdAndNamespace(identifierMetadata.multiFacetAwareItemId, buildNamespaceInternal())
-            .find { it.key == STATUS_KEY }.value
+            .find {it.key == STATUS_KEY}.value
     }
 
 
-    List<Metadata> getByMultiFacetAwareDomainTypeAndId(String domainType, String multiFacetAwareId) {
-        List<Metadata> metadataList = new ArrayList<>()
-        List<Metadata> temp = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(UUID.fromString(multiFacetAwareId), buildNamespaceInternal())
-        metadataList.add(temp.find { it.key == IDENTIFIER_KEY })
-        metadataList.add(temp.find { it.key == STATUS_KEY })
-        metadataList
+    Map<String, String> findDoiInformationByMultiFacetAwareItemId(String domainType, UUID multiFacetAwareItemId) {
+        List<Metadata> metadataList = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(multiFacetAwareItemId, buildNamespaceInternal())
+        if (!metadataList) return [:]
+        [identifier: metadataList.find {it.key == IDENTIFIER_KEY}.value,
+         status    : metadataList.find {it.key == STATUS_KEY}.value]
     }
 
 
@@ -89,9 +83,7 @@ class DigitalObjectIdentifierService {
 
 
     MultiFacetAwareService findMultiFacetAwareService(String multiFacetAwareDomainType) {
-        MultiFacetAwareService service = multiFacetAwareServices.find { it.handles(multiFacetAwareDomainType) }
-        if (!service) throw new ApiBadRequestException('DOIS01', "No supporting service for ${multiFacetAwareDomainType}")
-        return service
+        metadataService.findServiceForMultiFacetAwareDomainType(multiFacetAwareDomainType)
     }
 
 }

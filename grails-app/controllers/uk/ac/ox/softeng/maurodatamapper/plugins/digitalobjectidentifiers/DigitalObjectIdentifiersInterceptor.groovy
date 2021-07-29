@@ -16,16 +16,19 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
+
 import uk.ac.ox.softeng.maurodatamapper.core.traits.controller.MdmInterceptor
-class DigitalObjectIdentifierInterceptor implements MdmInterceptor {
+
+import java.nio.charset.Charset
+
+class DigitalObjectIdentifiersInterceptor implements MdmInterceptor {
 
     boolean before() {
-        if (actionName == 'getMultiFacetAwareItemByDoi') {
-            //allow endpoint calls if authenticated for now,
-            // more security will need to check the Security policy of the returned MultiFacetItem in order to make a decision
-
+        mapDomainTypeToClass('multiFacetAwareItem')
+        if (params.containsKey('doiPrefix')) {
+            params.digitalObjectIdentifier = "${params.doiPrefix}/${params.doiSuffix}"
         }
-        currentUserSecurityPolicyManager.isAuthenticated() ?: forbiddenDueToNotAuthenticated()
+        // Public access for all DOI info
+        true
     }
-
 }

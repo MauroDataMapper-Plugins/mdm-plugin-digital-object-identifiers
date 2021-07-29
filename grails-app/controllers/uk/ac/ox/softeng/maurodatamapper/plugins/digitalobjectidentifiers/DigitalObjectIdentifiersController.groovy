@@ -20,36 +20,30 @@ package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
 import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MultiFacetAware
 import uk.ac.ox.softeng.maurodatamapper.core.traits.controller.ResourcelessMdmController
-import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.digitalobjectidentifiers.DigitalObjectIdentifierService
 
 import groovy.util.logging.Slf4j
 
 @Slf4j
-class DigitalObjectIdentifierController implements ResourcelessMdmController {
+class DigitalObjectIdentifiersController implements ResourcelessMdmController {
 
     static responseFormats = ['json', 'xml']
 
-    DigitalObjectIdentifierService digitalObjectIdentifierService
+    DigitalObjectIdentifiersService digitalObjectIdentifiersService
 
-    def getMultiFacetAwareItemByDoi() {
+    def digitalObjectIdentifierItem() {
         log.debug('find by doi')
-        MultiFacetAware instance = digitalObjectIdentifierService.getMultiFacetAwareItemByDoi(params.digitalObjectIdentifier)
+        MultiFacetAware instance = digitalObjectIdentifiersService.findMultiFacetAwareItemByDoi(params.digitalObjectIdentifier)
         if (!instance) return notFound(MultiFacetAware, params.digitalObjectIdentifier)
-        respond instance
+        respond(instance, [model: [userSecurityPolicyManager: currentUserSecurityPolicyManager,
+                                   doiItem                  : instance],
+                           view : 'digitalObjectIdentifierItem'])
     }
 
-
-    def show() {
+    def digitalObjectIdentifierInformation() {
         log.debug('find by domain and MultiFacetAware Id')
-        List<Metadata> instance = digitalObjectIdentifierService.getByMultiFacetAwareDomainTypeAndId(params.multiFacetAwareDomainType, params
-            .multiFacetAwareId)
-        if (instance.empty) return notFound(Metadata, params.multiFacetAwareId)
-        String doi = instance.find { it.key == digitalObjectIdentifierService.IDENTIFIER_KEY }.value
-        String status = instance.find { it.key == digitalObjectIdentifierService.STATUS_KEY }.value
-        respond "identifier": doi,
-                "status": status
+        Map<String,String> information = digitalObjectIdentifiersService.findDoiInformationByMultiFacetAwareItemId(params.multiFacetAwareItemDomainType, params.multiFacetAwareItemId)
+        if (!information) return notFound(Metadata, params.multiFacetAwareItemId)
+        respond params.multiFacetAwareItemId, [model: information, view: 'digitalObjectIdentifierInformation']
 
     }
-
-
 }
