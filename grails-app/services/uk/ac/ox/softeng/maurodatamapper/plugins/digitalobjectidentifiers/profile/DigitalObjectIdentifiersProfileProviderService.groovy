@@ -48,7 +48,7 @@ class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProvider
 
     @Override
     String getJsonResourceFile() {
-        'DataCiteDigitalObjectIdentifiersProfile.json'
+        'DataCiteDigitalObjectIdentifiersSimpleProfile.json'
     }
 
     @Override

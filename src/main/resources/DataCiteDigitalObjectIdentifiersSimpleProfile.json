@@ -1,0 +1,81 @@
+[
+  {
+    "sectionName":"DataCite DOI Fields",
+    "sectionDescription":"Summary metadata fields for DOI profiles.",
+    "fields": [
+      {
+        "fieldName": "Identifier",
+        "metadataPropertyName": "identifier",
+        "description": "A persistent identifier that identifies a resource. This will be filled in by the API upon submission",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName":"Creator Name",
+        "metadataPropertyName":"creators/creator/creatorName",
+        "description":"The main researchers involved working on the data, or the authors of the publication in priority order. May be a corporate/institutional or personal name.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Title",
+        "metadataPropertyName":"titles/title",
+        "description":"A name or title by which a resource is known.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"Text"
+      },
+      {
+        "fieldName":"Publisher",
+        "metadataPropertyName":"publisher",
+        "description":"The name of the entity that holds, archives, publishes prints, distributes, releases, issues, or produces the resource. This property will be used to formulate the citation, so consider the prominence of the role. For software, use Publisher for the code repository. If there is an entity other than a code repository, that 'holds, archives, publishes, prints, distributes, releases, issues, or produces' the code, use the property Contributor/contributorType/hostingInstitution for the code repository.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Publication Year",
+        "metadataPropertyName":"publicationYear",
+        "description":"The year when the data was or will be made publicly available. If an embargo period has been in effect, use the date when the embargo period ends.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"Int"
+      },
+      {
+        "fieldName": "Resource Type",
+        "metadataPropertyName": "resourceType",
+        "description": "Year when the data is made publicly available. If an embargo period has been in effect, use the date when the embargo period ends.",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "Enumeration",
+        "allowedValues": [
+          "Audiovisual",
+          "Collection",
+          "DataPaper",
+          "Dataset",
+          "Event",
+          "Image",
+          "InteractiveResource",
+          "Model",
+          "PhysicalObject",
+          "Service",
+          "Software",
+          "Sound",
+          "Text",
+          "Workflow",
+          "Other"
+        ]
+      },
+      {
+        "fieldName":"Description",
+        "metadataPropertyName":"descriptions/description",
+        "description":"All additional information that does not fit in any of the other categories. May be used for technical information.",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"Text"
+      }
+    ]
+  }
+]

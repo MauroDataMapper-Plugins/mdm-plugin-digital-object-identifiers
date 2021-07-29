@@ -72,9 +72,11 @@ class DigitalObjectIdentifiersServiceFunctionalSpec extends BaseFunctionalSpec {
         then:
         verifyResponse(HttpStatus.OK, response)
 
-
-        // Verify the profile contains the addtl suffix etc
         responseBody().id
+        responseBody().sections.get(0).fields.find {it.metadataPropertyName == 'creators/creator/creatorName'}.currentValue == 'Creator Anthony Char'
+        responseBody().sections.get(0).fields.find {it.metadataPropertyName == 'titles/title'}.currentValue == 'DOI DataCite BDI title'
+        responseBody().sections.get(0).fields.find {it.metadataPropertyName == 'publisher'}.currentValue == 'Publisher Anthony'
+        responseBody().sections.get(0).fields.find {it.metadataPropertyName == 'publicationYear'}.currentValue == '2021'
 
         cleanup:
         cleanUpDataModel(id)
@@ -113,7 +115,7 @@ class DigitalObjectIdentifiersServiceFunctionalSpec extends BaseFunctionalSpec {
 
         POST("dataModels/$id/metadata",[
             namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
-            key: 'creators/name',
+            key: 'creators/creator/creatorName',
             value: 'Creator Anthony Char'
         ])
         verifyResponse(HttpStatus.CREATED, response)
@@ -142,7 +144,7 @@ class DigitalObjectIdentifiersServiceFunctionalSpec extends BaseFunctionalSpec {
         POST("dataModels/$id/metadata",[
             namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
             key: 'resourceType',
-            value: 'Text'
+            value: 'Dataset'
         ])
         verifyResponse(HttpStatus.CREATED, response)
 

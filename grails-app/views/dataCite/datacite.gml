@@ -5,23 +5,31 @@ xmlDeclaration()
 'resource'(xmlns: "http://datacite.org/schema/kernel-4",
            'xmlns:xsi': "http://www.w3.org/2001/XMLSchema-instance",
            'xsi:schemaLocation': "http://datacite.org/schema/kernel-4 http://schema.datacite.org/meta/kernel-4.1/metadata.xsd") {
-    'identifier'(sd.identifier, identifierType: 'DOI')
+    'identifier'(sd.Identifiers, identifierType: 'DOI', sd.identifier)
     'creators' {
-        sd.creators.each { cr ->
-            'creator' {
-                'creatorName'(cr.creatorName)
-            }
+        'creator' {
+            ('creatorName'(sd."Creator Name"))
         }
     }
+//    'creators' {
+//        sd.creators.each { cr ->
+//            'creator' {
+//                'creatorName'(cr.creatorName)
+//            }
+//        }
+//    }
 
+//    'titles' {
+//        sd.titles.each { ti ->
+//            'title'(ti.title)
+//        }
+//    }
     'titles' {
-        sd.titles.each { ti ->
-            'title'(ti.title)
-        }
+        'title'(sd.Title)
     }
-    'publisher'(sd.publisher)
-    'publicationYear'(sd.publicationYear)
-    'resourceType'(sd.resourceType, resourceTypeGeneral: sd.resourceType)
+    'publisher'(sd.Publisher)
+    'publicationYear'(sd."Publication Year")
+    'resourceType'(sd.resourceType, resourceTypeGeneral: sd."Resource Type")
     if (sd.descriptions) {
         'descriptions' {
             sd.descriptions.each { de ->
