@@ -221,13 +221,10 @@ class DigitalObjectIdentifiersService {
     }
 
     def submitAsDraft(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
-                      ApiProperty siteUrlProperty, ApiProperty usernameProperty, ApiProperty passwordProperty){
+                     ApiProperty usernameProperty, ApiProperty passwordProperty) {
 
-        Map xmlEncoded = createDataCiteXml()
-        Map draftBody = createDraftDoiBody(xmlEncoded, prefixProperty.value)
-        if(!draftBody.url) {
-            String url = "${siteUrlProperty.value}/#/doi/${prefixProperty.value}/${}"
-        }
+        String encodedXml = createAndEncodeDataCiteXml(attributesBlock)
+        Map draftBody = createDoiBody(prefixProperty.value, encodedXml, attributesBlock.suffix)
 
         Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient(prefixProperty.value + '/' + attributesBlock.suffix,
                                                                                               draftBody,
@@ -238,12 +235,13 @@ class DigitalObjectIdentifiersService {
     }
 
     def submitAsFinal(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
-                      ApiProperty suffixProperty, ApiProperty siteUrlProperty, ApiProperty usernameProperty, ApiProperty passwordProperty){
+                      ApiProperty siteUrlProperty, ApiProperty usernameProperty, ApiProperty passwordProperty){
 
-        Map finalBody = createEventDoiBody(attributesBlock, prefixProperty.value, suffixProperty.value, 'publish')
-        if(!finalBody.url) {
-            String url = "${siteUrlProperty.value}/#/doi/${prefixProperty.value}/${suffixProperty.value}"
+        if(!attributesBlock.url) {
+            attributesBlock.url = "${siteUrlProperty.value}/#/doi/${prefixProperty.value}/${attributesBlock.suffix}"
         }
+        String xmlEncoded = createDataCiteXml(attributesBlock)
+        Map finalBody = createDoiBody(xmlEncoded, prefixProperty.value, attributesBlock.suffix as String, 'publish')
 
         Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient('',
                                                                                                finalBody,
@@ -292,42 +290,28 @@ class DigitalObjectIdentifiersService {
         body
     }
 
-    Map createDraftDoiBody(Map xmlencoded, String prefix) {
+    Map createDoiBody(String prefix, String encodedXml=null, String suffix=null, String event=null) {
+        Map base =  [
+            data: [
+                type: "dois",
+                attributes: [
+                    prefix: prefix
+                ]
+            ]
+        ]
 
-        Map doiBody = '''
-{
-    "data": {
-        "type": "dois",
-        "attributes": {
-            "prefix": "${prefix}",
-            "xml":"${xmlencoded}"
+        if(encodedXml) {
+            base.data.attributes.xml = encodedXml
         }
-    }
-}
-''' as Map
-
-        doiBody
-    }
-
-    Map createEventDoiBody(Map attributesBlock, String prefix, String suffix, String event) {
-
-        Map doiBody = '''
-{
-    "data": {
-        "id": "''' + prefix + '/' + suffix + '''",
-        "type": "dois",
-        "attributes": {
-            "event":"''' + event + '''",
-            "doi": "''' + prefix + '/' + suffix + '''",
-            "prefix": "''' + prefix + '''",
-            "suffix": "''' + suffix + '''",
-            ''' + attributesBlock + '''"
-
+        if(event) {
+            base.data.attributes.event = event
         }
-    }
-}
-'''
-        doiBody
+        if(suffix){
+            base.data.attributes.suffix = suffix
+            base.data.attributes.doi =  "$prefix/$suffix"
+            base.data.id = "$prefix/$suffix"
+        }
+        base
     }
 
     String getStatus(MultiFacetAware multiFacetAware) {
