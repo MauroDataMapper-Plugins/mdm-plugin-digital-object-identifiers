@@ -17,23 +17,18 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
-enum DoiStatusEnum {
-    DRAFT("draft"),
-    FINAL("final"),
-    RETIRED("retired"),
-    NOT_APPLICABLE("not_applicable")
+import uk.ac.ox.softeng.maurodatamapper.core.traits.controller.MdmInterceptor
 
-    private final String key
+import java.nio.charset.Charset
 
-    DoiStatusEnum(String key) {
-        this.key = key
-    }
+class DigitalObjectIdentifiersInterceptor implements MdmInterceptor {
 
-    String toString() {
-        return key
-    }
-
-    static DoiStatusEnum findDoiStatus(String key) {
-        values().find { it.key == key }
+    boolean before() {
+        mapDomainTypeToClass('multiFacetAwareItem')
+        if (params.containsKey('doiPrefix')) {
+            params.digitalObjectIdentifier = "${params.doiPrefix}/${params.doiSuffix}"
+        }
+        // Public access for all DOI info
+        true
     }
 }

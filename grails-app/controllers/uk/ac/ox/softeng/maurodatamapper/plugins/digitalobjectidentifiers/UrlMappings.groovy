@@ -20,6 +20,11 @@ package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 class UrlMappings {
 
     static mappings = {
-        // provide plugin url mappings here
+        group '/api', {
+            get "/$multiFacetAwareItemDomainType/$multiFacetAwareItemId/doi"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierInformation')
+            get "/doi/$digitalObjectIdentifier"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')
+            get "/doi/$doiPrefix/$doiSuffix"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')
+
+        }
     }
 }
