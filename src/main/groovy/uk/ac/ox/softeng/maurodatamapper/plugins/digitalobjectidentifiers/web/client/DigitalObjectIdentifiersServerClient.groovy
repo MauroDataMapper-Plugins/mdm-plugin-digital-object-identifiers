@@ -8,6 +8,7 @@ import io.micronaut.core.annotation.AnnotationMetadataResolver
 import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpRequest
 import io.micronaut.http.HttpStatus
+import io.micronaut.http.MutableHttpRequest
 import io.micronaut.http.client.DefaultHttpClient
 import io.micronaut.http.client.HttpClient
 import io.micronaut.http.client.HttpClientConfiguration
@@ -30,22 +31,18 @@ class DigitalObjectIdentifiersServerClient {
     private HttpClient client
     private String hostUrl
     private String contextPath
+    private String username
+    private String password
 
-    DigitalObjectIdentifiersServerClient(String hostUrl, ApplicationContext applicationContext) {
-        this(hostUrl, null,
-             applicationContext.getBean(HttpClientConfiguration),
-             new DefaultThreadFactory(MultithreadEventLoopGroup),
-             applicationContext.getBean(NettyClientSslBuilder),
-             applicationContext.getBean(MediaTypeCodecRegistry)
-        )
-    }
-
-    DigitalObjectIdentifiersServerClient(String hostUrl, String contextPath, ApplicationContext applicationContext) {
+    DigitalObjectIdentifiersServerClient(String hostUrl, String contextPath, ApplicationContext applicationContext, String username,
+                                         String password) {
         this(hostUrl, contextPath,
              applicationContext.getBean(HttpClientConfiguration),
              new DefaultThreadFactory(MultithreadEventLoopGroup),
              applicationContext.getBean(NettyClientSslBuilder),
-             applicationContext.getBean(MediaTypeCodecRegistry)
+             applicationContext.getBean(MediaTypeCodecRegistry),
+             username,
+             password
         )
     }
 
@@ -53,9 +50,11 @@ class DigitalObjectIdentifiersServerClient {
                                          HttpClientConfiguration httpClientConfiguration,
                                          ThreadFactory threadFactory,
                                          NettyClientSslBuilder nettyClientSslBuilder,
-                                         MediaTypeCodecRegistry mediaTypeCodecRegistry) {
+                                         MediaTypeCodecRegistry mediaTypeCodecRegistry, String username, String password) {
         this.hostUrl = hostUrl
         this.contextPath = contextPath
+        this.username = username
+        this.password = password
         client = new DefaultHttpClient(LoadBalancer.fixed(hostUrl.toURL()),
                                        httpClientConfiguration,
                                        this.contextPath,
@@ -66,19 +65,30 @@ class DigitalObjectIdentifiersServerClient {
         log.debug('Client created to connect to {}', hostUrl)
     }
 
-    Map<String, Object> getDoiProfileEntry(String entryId) {
-        retrieveMapFromClient('/dois/{entryId}', [entryId: entryId])
+    void updateCredentials(String username, String password) {
+        this.username = username
+        this.password = password
     }
 
-    URI getHostUri() {
-        UriBuilder.of(hostUrl).build()
+    Map<String, Object> sendMapToClient(Map body, String url = '') {
+        MutableHttpRequest<Map<String, Object>> request = HttpRequest.POST(UriBuilder.of(url).build(), body)
+        makeRequestToClient(request, url)
     }
 
-    Map<String, Object> sendMapToClient(String url, Map body, String username, String password) {
+    Map<String, Object> putMapToClient(Map body, String url = '') {
+        MutableHttpRequest<Map<String, Object>> request = HttpRequest.PUT(UriBuilder.of(url).build(), body)
+        makeRequestToClient(request, url)
+    }
+
+    Map<String, Object> getMapFromClient(String url = '') {
+        MutableHttpRequest<Map<String, Object>> request = HttpRequest.GET(UriBuilder.of(url).build())
+        makeRequestToClient(request, url)
+    }
+
+    Map<String, Object> makeRequestToClient(MutableHttpRequest<Map<String, Object>> request, String url) {
         try {
-            HttpRequest request = HttpRequest.POST(UriBuilder.of(url).build(), body).basicAuth(username, password)
-            Flowable<Map> response = client.retrieve(request,
-                                                     Argument.of(Map, String, Object)) as Flowable<Map>
+            Flowable<Map<String, Object>> response = client.retrieve(request.basicAuth(username, password),
+                                                                     Argument.of(Map, String, Object)) as Flowable<Map>
             response.blockingFirst()
         }
         catch (HttpClientResponseException responseException) {
@@ -88,48 +98,6 @@ class DigitalObjectIdentifiersServerClient {
             }
             throw new ApiInternalException('DOIC02', "Could not load resource from endpoint [${fullUrl}].\n" +
                                                      "Response body [${responseException.response.body()}]",
-                                           responseException)
-        } catch (HttpException ex) {
-            String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()
-            throw new ApiInternalException('DOIC03', "Could not load resource from endpoint [${fullUrl}]", ex)
-        }
-    }
-
-    Map<String, Object> putMapToClient(String url, Map body, String username, String password) {
-        try {
-            HttpRequest request = HttpRequest.PUT(UriBuilder.of(url).build(), body).basicAuth(username, password)
-            Flowable<Map> response = client.retrieve(request,
-                                                     Argument.of(Map, String, Object)) as Flowable<Map>
-            response.blockingFirst()
-        }
-        catch (HttpClientResponseException responseException) {
-            String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()
-            if (responseException.status == HttpStatus.NOT_FOUND) {
-                throw new ApiBadRequestException('DOIC01', "Requested endpoint could not be found ${fullUrl}")
-            }
-            throw new ApiInternalException('DOIC02', "Could not load resource from endpoint [${fullUrl}].\n" +
-                                                     "Response body [${responseException.response.body()}]",
-                                           responseException)
-        } catch (HttpException ex) {
-            String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()
-            throw new ApiInternalException('DOIC03', "Could not load resource from endpoint [${fullUrl}]", ex)
-        }
-    }
-
-    Map<String, Object> retrieveMapFromClient(String url, String username, String password) {
-        try {
-            HttpRequest request = HttpRequest.GET(UriBuilder.of(url).build()).basicAuth(username, password)
-            Flowable<Map> response = client.retrieve(request,
-                                                     Argument.of(Map, String, Object)) as Flowable<Map>
-            response.blockingFirst()
-        }
-        catch (HttpClientResponseException responseException) {
-            String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()
-            if (responseException.status == HttpStatus.NOT_FOUND) {
-                throw new ApiBadRequestException('DOIC01', "Requested endpoint could not be found ${fullUrl}")
-            }
-            throw new ApiInternalException('DOIC02', "Could not load resource from endpoint [${fullUrl}].\n" +
-                                                      "Response body [${responseException.response.body()}]",
                                            responseException)
         } catch (HttpException ex) {
             String fullUrl = UriBuilder.of(hostUrl).path(contextPath).path(url).toString()

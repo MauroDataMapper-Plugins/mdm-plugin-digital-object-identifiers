@@ -68,7 +68,7 @@ class DigitalObjectIdentifiersService {
         Metadata identifier = findIdentifierMetadataByDoi(doi)
         Metadata statusMetadata =
             metadataService.findAllByMultiFacetAwareItemIdAndNamespace(identifier.multiFacetAwareItemId, buildNamespaceInternal())
-                .find {it.key == STATUS_KEY}
+                .find { it.key == STATUS_KEY }
         statusMetadata.value = status
         metadataService.save(statusMetadata)
     }
@@ -84,15 +84,15 @@ class DigitalObjectIdentifiersService {
     String getDoiStatus(String doi) {
         Metadata identifierMetadata = findIdentifierMetadataByDoi(doi)
         metadataService.findAllByMultiFacetAwareItemIdAndNamespace(identifierMetadata.multiFacetAwareItemId, buildNamespaceInternal())
-            .find {it.key == STATUS_KEY}.value
+            .find { it.key == STATUS_KEY }.value
     }
 
 
     Map<String, String> findDoiInformationByMultiFacetAwareItemId(String domainType, UUID multiFacetAwareItemId) {
         List<Metadata> metadataList = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(multiFacetAwareItemId, buildNamespaceInternal())
         if (!metadataList) return [:]
-        [identifier: metadataList.find {it.key == IDENTIFIER_KEY}.value,
-         status    : metadataList.find {it.key == STATUS_KEY}.value]
+        [identifier: metadataList.find { it.key == IDENTIFIER_KEY }.value,
+         status    : metadataList.find { it.key == STATUS_KEY }.value]
     }
 
 
@@ -110,22 +110,18 @@ class DigitalObjectIdentifiersService {
         String status = getStatus(multiFacetAware)
         if (status == 'registered') throw new ApiBadRequestException('SD01', 'MFA already registered as retired')
 
-        List<ApiProperty> apiPropertyList = ApiProperty.findAllByCategory(BootStrap.DOI_API_PROPERTY_CATEGORY)
+        Map<String, ApiProperty> apiPropertyMap = getRequiredApiProperties()
 
-        ApiProperty endpointProperty = apiPropertyList.find {it.key == 'endpoint'}
-        ApiProperty prefixProperty = apiPropertyList.find {it.key == 'prefix'}
-        ApiProperty usernameProperty = apiPropertyList.find {it.key == 'username'}
-        ApiProperty passwordProperty = apiPropertyList.find {it.key == 'password'}
-
-        ApiProperty siteUrlProperty =  apiPropertyService.findByApiPropertyEnum(ApiPropertyEnum.SITE_URL)
-
-        DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(endpointProperty.value,
-                                                                                                                             "dois",
-                                                                                                                             applicationContext)
+        DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(
+            apiPropertyMap.endpointProperty.value,
+            "dois",
+            applicationContext,
+            apiPropertyMap.usernameProperty.value,
+            apiPropertyMap.passwordProperty.value)
 
         Map attributesBlock = createAttributesBlock(multiFacetAware)
 
-        submitAsRetire(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, siteUrlProperty, usernameProperty, passwordProperty,
+        submitAsRetire(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, apiPropertyMap.siteUrlProperty,
                        multiFacetAware, user)
 
         return multiFacetAware
@@ -138,132 +134,117 @@ class DigitalObjectIdentifiersService {
         if (status == 'finalised') throw new ApiBadRequestException('sd', 'already submitted')
         if (status == 'retired') throw new ApiBadRequestException('sd', 'already retired')
 
-        List<ApiProperty> apiPropertyList = ApiProperty.findAllByCategory(BootStrap.DOI_API_PROPERTY_CATEGORY)
+        Map<String, ApiProperty> apiPropertyMap = getRequiredApiProperties()
 
-        ApiProperty endpointProperty = apiPropertyList.find {it.key == 'endpoint'}
-        ApiProperty prefixProperty = apiPropertyList.find {it.key == 'prefix'}
-        ApiProperty usernameProperty = apiPropertyList.find {it.key == 'username'}
-        ApiProperty passwordProperty = apiPropertyList.find {it.key == 'password'}
-
-        ApiProperty siteUrlProperty =  apiPropertyService.findByApiPropertyEnum(ApiPropertyEnum.SITE_URL)
-
-        DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(endpointProperty.value,
-                                                                                                                             "dois",
-                                                                                                                             applicationContext)
+        DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(
+            apiPropertyMap.endpointProperty.value,
+            "dois",
+            applicationContext,
+            apiPropertyMap.usernameProperty.value,
+            apiPropertyMap.passwordProperty.value)
         Map attributesBlock = createAttributesBlock(multiFacetAware)
 
         if (!attributesBlock.suffix) {
-            submitAsSimple(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, usernameProperty, passwordProperty,
+            submitAsSimple(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, multiFacetAware, user)
+        }
+
+        if (submissionType == 'draft') {
+            submitAsDraft(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, multiFacetAware, user)
+        }
+
+        if (submissionType == 'retire') {
+            submitAsRetire(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, apiPropertyMap.siteUrlProperty,
                            multiFacetAware, user)
         }
 
-        if(submissionType == 'draft'){
-            submitAsDraft(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, usernameProperty, passwordProperty,
+        if (submissionType == 'finalise') {
+            submitAsFinal(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, apiPropertyMap.siteUrlProperty,
                           multiFacetAware, user)
-        }
-
-        if(submissionType == 'retire'){
-            submitAsRetire(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, siteUrlProperty, usernameProperty,
-                           passwordProperty, multiFacetAware, user)
-        }
-
-        if(submissionType == 'finalise'){
-            submitAsFinal(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, siteUrlProperty, usernameProperty,
-                          passwordProperty, multiFacetAware, user)
         }
     }
 
     def submitAsSimple(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
-                       ApiProperty usernameProperty, ApiProperty passwordProperty, MultiFacetAware multiFacetAware, User user) {
+                       MultiFacetAware multiFacetAware, User user) {
 
         Map simpleBody = createDoiBody(prefixProperty.value)
-        Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.sendMapToClient('',
-                                                                                               simpleBody,
-                                                                                               usernameProperty.value,
-                                                                                               passwordProperty.value)
+        Map<String, Object> responseBody = digitalObjectIdentifiersServerClient.sendMapToClient(simpleBody)
 
         updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
     }
 
     def submitAsDraft(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
-                     ApiProperty usernameProperty, ApiProperty passwordProperty, MultiFacetAware multiFacetAware, User user) {
+                      MultiFacetAware multiFacetAware, User user) {
 
         String encodedXml = createAndEncodeDataCiteXml(attributesBlock)
         Map draftBody = createDoiBody(prefixProperty.value, encodedXml, attributesBlock.suffix as String)
 
-        Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient(prefixProperty.value + '/' + attributesBlock.suffix,
-                                                                                              draftBody,
-                                                                                              usernameProperty.value,
-                                                                                              passwordProperty.value)
+        Map<String, Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient(draftBody,
+                                                                                               "${prefixProperty.value}/${attributesBlock.suffix}")
 
         updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
     }
 
     def submitAsRetire(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
-                       ApiProperty siteUrlProperty, ApiProperty usernameProperty, ApiProperty passwordProperty, MultiFacetAware multiFacetAware,
-                       User user){
+                       ApiProperty siteUrlProperty, MultiFacetAware multiFacetAware,
+                       User user) {
 
         String event
-        if(attributesBlock.status == 'draft') {
+        if (attributesBlock.status == 'draft') {
             event = 'register'
-        }
-        else if (attributesBlock.status == 'findable') {
+        } else if (attributesBlock.status == 'findable') {
             event = 'hide'
-        }
-        else {
+        } else {
             throw new ApiBadRequestException('sd02', 'Incompatible status of DOI.')
         }
 
 
-        if(!siteUrlProperty){
-            throw new ApiBadRequestException('DOISXX','Cannot submit DOI without the Site URL being set')
+        if (!siteUrlProperty) {
+            throw new ApiBadRequestException('DOISXX', 'Cannot submit DOI without the Site URL being set')
         }
-        if(!attributesBlock.url) {
+        if (!attributesBlock.url) {
             attributesBlock.url = "${siteUrlProperty.value}/#/doi/${prefixProperty.value}/${attributesBlock.suffix}"
         }
         String encodedXml = createAndEncodeDataCiteXml(attributesBlock)
 
         Map retireBody = createDoiBody(prefixProperty.value, encodedXml, attributesBlock.suffix as String, event, attributesBlock.url as String)
 
-        Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient(prefixProperty.value + '/' + attributesBlock.suffix,
-                                                                                              retireBody,
-                                                                                              usernameProperty.value,
-                                                                                              passwordProperty.value)
+        Map<String, Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient(retireBody,
+                                                                                               "${prefixProperty.value}/${attributesBlock.suffix}"
+        )
 
         updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
     }
 
     def submitAsFinal(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
-                      ApiProperty siteUrlProperty, ApiProperty usernameProperty, ApiProperty passwordProperty, MultiFacetAware multiFacetAware,
-                      User user){
+                      ApiProperty siteUrlProperty, MultiFacetAware multiFacetAware,
+                      User user) {
 
         String event = 'publish'
         attributesBlock.event = event
 
-        if(!siteUrlProperty){
-            throw new ApiBadRequestException('DOISXX','Cannot submit DOI without the Site URL being set')
+        if (!siteUrlProperty) {
+            throw new ApiBadRequestException('DOISXX', 'Cannot submit DOI without the Site URL being set')
         }
-        if(!attributesBlock.url) {
+        if (!attributesBlock.url) {
             attributesBlock.url = "${siteUrlProperty.value}/#/doi/${prefixProperty.value}/${attributesBlock.suffix}"
         }
 
         String encodedXml = createAndEncodeDataCiteXml(attributesBlock)
         Map finalBody = createDoiBody(prefixProperty.value, encodedXml, attributesBlock.suffix as String, event, attributesBlock.url as String)
 
-        Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient(prefixProperty.value + '/' + attributesBlock.suffix,
-                                                                                              finalBody,
-                                                                                              usernameProperty.value,
-                                                                                              passwordProperty.value)
+        Map<String, Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient(finalBody,
+                                                                                               "${prefixProperty.value}/${attributesBlock.suffix}"
+        )
 
         updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
     }
 
-    def updateFromResponse(Map<String,Object> responseBody, Map attributesBlock, MultiFacetAware multiFacetAware,
-                           User user){
+    def updateFromResponse(Map<String, Object> responseBody, Map attributesBlock, MultiFacetAware multiFacetAware,
+                           User user) {
 
-        if(!attributesBlock.suffix){
+        if (!attributesBlock.suffix) {
             attributesBlock.suffix = responseBody.data.attributes.suffix
-            log.debug(attributesBlock.suffix)
+
             Metadata suffixMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
                                                    key: 'suffix',
                                                    value: attributesBlock.suffix,
@@ -271,7 +252,7 @@ class DigitalObjectIdentifiersService {
             multiFacetAware.addToMetadata(suffixMetadata)
             metadataService.addFacetAndSaveMultiFacetAware('metadata', suffixMetadata)
         }
-        if(!attributesBlock.identifier){
+        if (!attributesBlock.identifier) {
             attributesBlock.identifier = responseBody.data.attributes.doi
             Metadata doiMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
                                                 key: 'identifier',
@@ -282,7 +263,7 @@ class DigitalObjectIdentifiersService {
         }
         if (responseBody.data.attributes.state) {
             attributesBlock.status = responseBody.data.attributes.state
-            multiFacetAware.metadata.find{it.key == 'status'}.value = responseBody.data.attributes.state
+            multiFacetAware.metadata.find { it.key == 'status' }.value = responseBody.data.attributes.state
         }
 
         attributesBlock
@@ -292,52 +273,64 @@ class DigitalObjectIdentifiersService {
 
         def profile = digitalObjectIdentifiersProfileProviderService.createProfileFromEntity(multiFacetAware)
 
-        List<Map<String, Object>> sectionsData = profile.sections.collect {section ->
-            Map<String, Object> data = section.fields.collectEntries {field ->
+        List<Map<String, Object>> sectionsData = profile.sections.collect { section ->
+            Map<String, Object> data = section.fields.collectEntries { field ->
                 [field.metadataPropertyName, field.currentValue]
             }
-            data.findAll {k, v -> v}
+            data.findAll { k, v -> v }
         }
 
         Map body = [:]
-        sectionsData.each {sd ->
+        sectionsData.each { sd ->
             body.putAll(sd)
         }
 
         body
     }
 
-    Map createDoiBody(String prefix, String encodedXml=null, String suffix=null, String event=null, String url=null) {
-        Map base =  [
+    Map createDoiBody(String prefix, String encodedXml = null, String suffix = null, String event = null, String url = null) {
+        Map base = [
             data: [
-                type: "dois",
+                type      : "dois",
                 attributes: [
                     prefix: prefix
                 ]
             ]
         ]
 
-        if(encodedXml) {
+        if (encodedXml) {
             base.data.attributes.xml = encodedXml
         }
-        if(event) {
+        if (event) {
             base.data.attributes.event = event
         }
-        if(suffix){
+        if (suffix) {
             base.data.attributes.suffix = suffix
-            base.data.attributes.doi =  "$prefix/$suffix"
+            base.data.attributes.doi = "$prefix/$suffix"
             base.data.id = "$prefix/$suffix"
         }
-        if(url){
+        if (url) {
             base.data.attributes.url = url
         }
         base
     }
 
+    Map<String, ApiProperty> getRequiredApiProperties() {
+        List<ApiProperty> apiPropertyList = ApiProperty.findAllByCategory(BootStrap.DOI_API_PROPERTY_CATEGORY)
+        [
+            endpointProperty: apiPropertyList.find { it.key == 'endpoint' },
+            prefixProperty  : apiPropertyList.find { it.key == 'prefix' },
+            usernameProperty: apiPropertyList.find { it.key == 'username' },
+            passwordProperty: apiPropertyList.find { it.key == 'password' },
+            siteUrlProperty : apiPropertyService.findByApiPropertyEnum(ApiPropertyEnum.SITE_URL),
+        ]
+    }
+
     String getStatus(MultiFacetAware multiFacetAware) {
-        List<Metadata> internalMetadata = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(multiFacetAware.id,
-                                                                                                     "${digitalObjectIdentifiersProfileProviderService.metadataNamespace}")
-        internalMetadata.find {it.key = 'status'}
+        List<Metadata> internalMetadata = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(
+            multiFacetAware.id,
+            "${digitalObjectIdentifiersProfileProviderService.metadataNamespace}")
+        internalMetadata.find { it.key = 'status' }
     }
 
     MultiFacetAware findMultiFacetAwareItemByDomainTypeAndId(String domainType, String multiFacetAwareItemIdString) {
@@ -345,7 +338,7 @@ class DigitalObjectIdentifiersService {
     }
 
     MultiFacetAware findMultiFacetAwareItemByDomainTypeAndId(String domainType, UUID multiFacetAwareItemId) {
-        MultiFacetAwareService service = multiFacetAwareServices.find {it.handles(domainType)}
+        MultiFacetAwareService service = multiFacetAwareServices.find { it.handles(domainType) }
         if (!service) throw new ApiBadRequestException('DOIS02', "Facet retrieval for catalogue item [${domainType}] with no supporting service")
         service.get(multiFacetAwareItemId)
     }
