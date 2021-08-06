@@ -43,7 +43,8 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
 
     def digitalObjectIdentifierInformation() {
         log.debug('find by domain and MultiFacetAware Id')
-        Map<String,String> information = digitalObjectIdentifiersService.findDoiInformationByMultiFacetAwareItemId(params.multiFacetAwareItemDomainType, params.multiFacetAwareItemId)
+        Map<String, String> information = digitalObjectIdentifiersService.findDoiInformationByMultiFacetAwareItemId(
+            params.multiFacetAwareItemDomainType, params.multiFacetAwareItemId)
         if (!information) return notFound(Metadata, params.multiFacetAwareItemId)
         respond params.multiFacetAwareItemId, [model: information, view: 'digitalObjectIdentifierInformation']
 
@@ -57,33 +58,7 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
         if (!multiFacetAware) {
             return notFound(params.multiFacetAwareItemClass, params.multiFacetAwareItemId)
         }
-
-        if(!params.submissionType || params.submissionType == 'finalise' || params.submissionType == 'draft') {
-            digitalObjectIdentifiersService.submitDoi(multiFacetAware, params.submissionType, currentUser)
-        }
-        if(params.submissionType == 'retire') {
-            digitalObjectIdentifiersService.retireDoi(multiFacetAware, params.submissionType, currentUser)
-        }
-
+        digitalObjectIdentifiersService.submitDoi(multiFacetAware, params.submissionType, currentUser)
         respond multiFacetAware
-    }
-
-    @Transactional
-    def retire() {
-        MultiFacetAware multiFacetAware =
-            digitalObjectIdentifiersService.findMultiFacetAwareItemByDomainTypeAndId(params.multiFacetAwareItemDomainType,
-                                                                                     params.multiFacetAwareItemId)
-        if (!multiFacetAware) {
-            return notFound(params.multiFacetAwareItemClass, params.multiFacetAwareItemId)
-        }
-
-        digitalObjectIdentifiersService.retireDoi(multiFacetAware, params.submissionType)
-
-        respond multiFacetAware
-    }
-
-    protected String getProfileProviderServiceId(Map params) {
-        String baseId = "${params.profileNamespace}:${params.profileName}"
-        params.profileVersion ? "${baseId}:${params.profileVersion}" : baseId
     }
 }

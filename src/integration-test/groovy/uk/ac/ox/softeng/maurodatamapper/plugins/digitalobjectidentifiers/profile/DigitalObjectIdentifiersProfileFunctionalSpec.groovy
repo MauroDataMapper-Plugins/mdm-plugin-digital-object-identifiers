@@ -21,8 +21,6 @@ import uk.ac.ox.softeng.maurodatamapper.core.authority.Authority
 import uk.ac.ox.softeng.maurodatamapper.core.container.Folder
 import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
 import uk.ac.ox.softeng.maurodatamapper.datamodel.bootstrap.BootstrapModels
-import uk.ac.ox.softeng.maurodatamapper.profile.ProfileService
-import uk.ac.ox.softeng.maurodatamapper.profile.provider.ProfileProviderService
 import uk.ac.ox.softeng.maurodatamapper.test.functional.BaseFunctionalSpec
 
 import grails.gorm.transactions.Transactional
@@ -32,6 +30,7 @@ import groovy.util.logging.Slf4j
 import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import spock.lang.PendingFeature
 import spock.lang.Shared
 
 import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.getFUNCTIONAL_TEST
@@ -96,6 +95,7 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
         responseBody().count == 0 //currently empty
     }
 
+    @PendingFeature(reason = 'Need profile to be updated')
     void 'test save profile for model'() {
         given:
         String id = getSimpleDataModelId()

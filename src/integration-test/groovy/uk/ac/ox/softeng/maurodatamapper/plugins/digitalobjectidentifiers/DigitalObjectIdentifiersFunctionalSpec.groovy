@@ -132,6 +132,7 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'titles/title' }.currentValue == 'DOI DataCite BDI title'
         responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'publisher' }.currentValue == 'Publisher Anthony'
         responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'publicationYear' }.currentValue == '2021'
+        responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'suffix' }.currentValue
 
         cleanup:
         cleanUpDataModel(id)
@@ -140,11 +141,6 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
     void 'test finalise from new Doi endpoint end to end'() {
         given:
         String id = buildTestDataModel()
-        POST("dataModels/$id/metadata", [
-            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
-            key      : 'event',
-            value    : 'publish'
-        ])
 
         when:
         POST("dataModels/${id}/doi?submissionType=finalise", [:])
@@ -170,11 +166,7 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         given:
         String id = buildTestDataModel()
         POST("dataModels/${id}/doi?submissionType=draft", [:])
-        POST("dataModels/$id/metadata", [
-            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
-            key      : 'event',
-            value    : 'publish'
-        ])
+        verifyResponse(HttpStatus.OK, response)
 
         when:
         POST("dataModels/${id}/doi?submissionType=finalise", [:])
@@ -201,20 +193,12 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         given:
         String id = buildTestDataModel()
         POST("dataModels/${id}/doi?submissionType=draft", [:])
-        POST("dataModels/$id/metadata", [
-            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
-            key      : 'event',
-            value    : 'register'
-        ])
-        POST("dataModels/${id}/doi?submissionType=retire", [:])
-        POST("dataModels/$id/metadata", [
-            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
-            key      : 'event',
-            value    : 'publish'
-        ])
+        verifyResponse(HttpStatus.OK, response)
+        POST("dataModels/${id}/doi?submissionType=finalise", [:])
+        verifyResponse(HttpStatus.OK, response)
 
         when:
-        POST("dataModels/${id}/doi?submissionType=finalise", [:])
+        POST("dataModels/${id}/doi?submissionType=retire", [:])
 
         then:
         verifyResponse(HttpStatus.OK, response)
@@ -238,6 +222,7 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         given:
         String id = buildTestDataModel()
         POST("dataModels/${id}/doi?submissionType=draft", [:])
+        verifyResponse(HttpStatus.OK, response)
 
         when:
         POST("dataModels/${id}/doi?submissionType=retire", [:])
@@ -262,12 +247,9 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         given:
         String id = buildTestDataModel()
         POST("dataModels/${id}/doi?submissionType=draft", [:])
-        POST("dataModels/$id/metadata", [
-            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
-            key      : 'event',
-            value    : 'publish'
-        ])
+        verifyResponse(HttpStatus.OK, response)
         POST("dataModels/${id}/doi?submissionType=finalise", [:])
+        verifyResponse(HttpStatus.OK, response)
 
         when:
         POST("dataModels/${id}/doi?submissionType=retire", [:])

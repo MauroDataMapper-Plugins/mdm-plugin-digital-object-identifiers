@@ -43,14 +43,14 @@ class ApiPropertyFunctionalSpec extends BaseFunctionalSpec{
         verifyResponse(HttpStatus.OK, response)
 
         when:
-        List<Map> props = responseBody().items.findAll {it.category == BootStrap.DOI_API_PROPERTY_CATEGORY}
+        List<Map> props = responseBody().items.findAll { it.category == BootStrap.DOI_API_PROPERTY_CATEGORY }
 
         then:
         props
         props.size() == 4
-        props.find{it.key == 'prefix' && it.value == '10.80079'}
-        props.find{it.key == 'endpoint' && it.value == 'https://api.test.datacite.org'}
-        props.find{it.key == 'username' && it.value == 'NOT_SET'}
-        props.find{it.key == 'password' && it.value == 'NOT_SET'}
+        props.find { it.key == 'prefix' && it.value == '10.80079' }
+        props.find { it.key == 'endpoint' && it.value == 'https://api.test.datacite.org' }
+        props.find { it.key == 'username' }
+        props.find { it.key == 'password' }
     }
 }

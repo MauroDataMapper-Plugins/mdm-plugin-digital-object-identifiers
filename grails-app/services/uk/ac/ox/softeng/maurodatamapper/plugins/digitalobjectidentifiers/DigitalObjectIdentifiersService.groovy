@@ -34,6 +34,7 @@ import grails.gorm.transactions.Transactional
 import grails.plugin.markup.view.MarkupViewTemplateEngine
 import groovy.text.Template
 import groovy.util.logging.Slf4j
+import org.hibernate.SessionFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.ApplicationContext
 
@@ -43,7 +44,7 @@ class DigitalObjectIdentifiersService {
 
     @Autowired
     MarkupViewTemplateEngine markupViewTemplateEngine
-
+    SessionFactory sessionFactory
     MetadataService metadataService
     DigitalObjectIdentifiersProfileProviderService digitalObjectIdentifiersProfileProviderService
     ApiPropertyService apiPropertyService
@@ -66,11 +67,34 @@ class DigitalObjectIdentifiersService {
 
     void updateDoiStatus(String doi, DoiStatusEnum status) {
         Metadata identifier = findIdentifierMetadataByDoi(doi)
-        Metadata statusMetadata =
-            metadataService.findAllByMultiFacetAwareItemIdAndNamespace(identifier.multiFacetAwareItemId, buildNamespaceInternal())
-                .find { it.key == STATUS_KEY }
+        updateDoiStatus(identifier.multiFacetAwareItemId, status)
+    }
+
+    void updateDoiStatus(UUID multiFacetAwareItemId, DoiStatusEnum status) {
+        Metadata statusMetadata = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(multiFacetAwareItemId,
+                                                                                             buildNamespaceInternal())
+            .find { it.key == STATUS_KEY }
         statusMetadata.value = status
         metadataService.save(statusMetadata)
+    }
+
+    void setDoiInformation(MultiFacetAware multiFacetAwareItem, String identifier, DoiStatusEnum status, User user) {
+        Metadata identifierMetadata = new Metadata(namespace: buildNamespaceInternal(),
+                                                   key: IDENTIFIER_KEY,
+                                                   value: identifier,
+                                                   createdBy: user.getEmailAddress(),
+                                                   multiFacetAwareItem: multiFacetAwareItem)
+        multiFacetAwareItem.addToMetadata(identifierMetadata)
+        metadataService.save(identifierMetadata)
+        Metadata statusMetadata = new Metadata(namespace: buildNamespaceInternal(),
+                                               key: STATUS_KEY,
+                                               value: status.toString(),
+                                               createdBy: user.getEmailAddress(),
+                                               multiFacetAwareItem: multiFacetAwareItem)
+        multiFacetAwareItem.addToMetadata(statusMetadata)
+        metadataService.save(statusMetadata)
+        findMultiFacetAwareService(multiFacetAwareItem.domainType).save(multiFacetAwareItem)
+        sessionFactory.currentSession.flush()
     }
 
     Metadata findIdentifierMetadataByDoi(String doi) {
@@ -81,12 +105,16 @@ class DigitalObjectIdentifiersService {
         updateDoiStatus(doi, DoiStatusEnum.RETIRED)
     }
 
-    String getDoiStatus(String doi) {
+    DoiStatusEnum getDoiStatus(String doi) {
         Metadata identifierMetadata = findIdentifierMetadataByDoi(doi)
-        metadataService.findAllByMultiFacetAwareItemIdAndNamespace(identifierMetadata.multiFacetAwareItemId, buildNamespaceInternal())
-            .find { it.key == STATUS_KEY }.value
+        getDoiStatus(identifierMetadata.multiFacetAwareItemId)
     }
 
+    DoiStatusEnum getDoiStatus(UUID multiFacetAwareItemId) {
+        String status = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(multiFacetAwareItemId, buildNamespaceInternal())
+            .find { it.key == STATUS_KEY }?.value
+        status ? DoiStatusEnum.findDoiStatus(status) : null
+    }
 
     Map<String, String> findDoiInformationByMultiFacetAwareItemId(String domainType, UUID multiFacetAwareItemId) {
         List<Metadata> metadataList = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(multiFacetAwareItemId, buildNamespaceInternal())
@@ -94,7 +122,6 @@ class DigitalObjectIdentifiersService {
         [identifier: metadataList.find { it.key == IDENTIFIER_KEY }.value,
          status    : metadataList.find { it.key == STATUS_KEY }.value]
     }
-
 
     String buildNamespaceInternal() {
         "${digitalObjectIdentifiersProfileProviderService.metadataNamespace}.${INTERNAL_DOI_NAMESPACE}"
@@ -105,40 +132,19 @@ class DigitalObjectIdentifiersService {
         metadataService.findServiceForMultiFacetAwareDomainType(multiFacetAwareDomainType)
     }
 
-    def retireDoi(MultiFacetAware multiFacetAware, String submissionType, User user) {
+    void submitDoi(MultiFacetAware multiFacetAware, String submissionType, User user) {
+        DoiStatusEnum status = getDoiStatus(multiFacetAware.id)
 
-        String status = getStatus(multiFacetAware)
-        if (status == 'registered') throw new ApiBadRequestException('SD01', 'MFA already registered as retired')
-
-        Map<String, ApiProperty> apiPropertyMap = getRequiredApiProperties()
-
-        DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(
-            apiPropertyMap.endpointProperty.value,
-            "dois",
-            applicationContext,
-            apiPropertyMap.usernameProperty.value,
-            apiPropertyMap.passwordProperty.value)
-
-        Map attributesBlock = createAttributesBlock(multiFacetAware)
-
-        submitAsRetire(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, apiPropertyMap.siteUrlProperty,
-                       multiFacetAware, user)
-
-        return multiFacetAware
-    }
-
-    def submitDoi(MultiFacetAware multiFacetAware, String submissionType, User user) {
-
-        String status = getStatus(multiFacetAware)
-
-        if (status == 'finalised') throw new ApiBadRequestException('sd', 'already submitted')
-        if (status == 'retired') throw new ApiBadRequestException('sd', 'already retired')
+        if (submissionType != 'retire' && status == DoiStatusEnum.FINAL) {
+            throw new ApiBadRequestException('DOIS02', 'MFA already registered as finalised')
+        }
+        if (status == DoiStatusEnum.RETIRED) throw new ApiBadRequestException('DOIS03', 'MFA already registered as retired')
 
         Map<String, ApiProperty> apiPropertyMap = getRequiredApiProperties()
 
         DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(
             apiPropertyMap.endpointProperty.value,
-            "dois",
+            'dois',
             applicationContext,
             apiPropertyMap.usernameProperty.value,
             apiPropertyMap.passwordProperty.value)
@@ -148,18 +154,22 @@ class DigitalObjectIdentifiersService {
             submitAsSimple(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, multiFacetAware, user)
         }
 
-        if (submissionType == 'draft') {
-            submitAsDraft(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, multiFacetAware, user)
-        }
-
-        if (submissionType == 'retire') {
-            submitAsRetire(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, apiPropertyMap.siteUrlProperty,
-                           multiFacetAware, user)
-        }
-
-        if (submissionType == 'finalise') {
-            submitAsFinal(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, apiPropertyMap.siteUrlProperty,
-                          multiFacetAware, user)
+        switch (submissionType) {
+            case 'draft':
+                submitAsDraft(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty, multiFacetAware, user)
+                break
+            case 'retire':
+                submitAsRetire(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty,
+                               apiPropertyMap.siteUrlProperty, multiFacetAware, user)
+                break
+            case 'finalise':
+                submitAsFinal(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty,
+                              apiPropertyMap.siteUrlProperty, multiFacetAware, user)
+                break
+            default:
+                submitAsFinal(digitalObjectIdentifiersServerClient, attributesBlock, apiPropertyMap.prefixProperty,
+                              apiPropertyMap.siteUrlProperty, multiFacetAware, user)
+                break
         }
     }
 
@@ -170,6 +180,7 @@ class DigitalObjectIdentifiersService {
         Map<String, Object> responseBody = digitalObjectIdentifiersServerClient.sendMapToClient(simpleBody)
 
         updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
+        setDoiInformation(multiFacetAware, "${prefixProperty.value}/${attributesBlock.suffix}", DoiStatusEnum.DRAFT, user)
     }
 
     def submitAsDraft(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
@@ -182,6 +193,7 @@ class DigitalObjectIdentifiersService {
                                                                                                "${prefixProperty.value}/${attributesBlock.suffix}")
 
         updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
+        updateDoiStatus(multiFacetAware.id, DoiStatusEnum.DRAFT)
     }
 
     def submitAsRetire(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
@@ -196,7 +208,6 @@ class DigitalObjectIdentifiersService {
         } else {
             throw new ApiBadRequestException('sd02', 'Incompatible status of DOI.')
         }
-
 
         if (!siteUrlProperty) {
             throw new ApiBadRequestException('DOISXX', 'Cannot submit DOI without the Site URL being set')
@@ -213,6 +224,7 @@ class DigitalObjectIdentifiersService {
         )
 
         updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
+        updateDoiStatus(multiFacetAware.id, DoiStatusEnum.RETIRED)
     }
 
     def submitAsFinal(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
@@ -237,6 +249,7 @@ class DigitalObjectIdentifiersService {
         )
 
         updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
+        updateDoiStatus(multiFacetAware.id, DoiStatusEnum.FINAL)
     }
 
     def updateFromResponse(Map<String, Object> responseBody, Map attributesBlock, MultiFacetAware multiFacetAware,
@@ -248,24 +261,33 @@ class DigitalObjectIdentifiersService {
             Metadata suffixMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
                                                    key: 'suffix',
                                                    value: attributesBlock.suffix,
-                                                   createdBy: user.getEmailAddress())
+                                                   createdBy: user.getEmailAddress(),
+                                                   multiFacetAwareItem: multiFacetAware)
             multiFacetAware.addToMetadata(suffixMetadata)
-            metadataService.addFacetAndSaveMultiFacetAware('metadata', suffixMetadata)
+            metadataService.save(suffixMetadata)
         }
         if (!attributesBlock.identifier) {
             attributesBlock.identifier = responseBody.data.attributes.doi
             Metadata doiMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
                                                 key: 'identifier',
                                                 value: attributesBlock.identifier,
-                                                createdBy: user.getEmailAddress())
+                                                createdBy: user.getEmailAddress(),
+                                                multiFacetAwareItem: multiFacetAware)
             multiFacetAware.addToMetadata(doiMetadata)
-            metadataService.addFacetAndSaveMultiFacetAware('metadata', doiMetadata)
+            metadataService.save(doiMetadata)
         }
         if (responseBody.data.attributes.state) {
             attributesBlock.status = responseBody.data.attributes.state
-            multiFacetAware.metadata.find { it.key == 'status' }.value = responseBody.data.attributes.state
+            Metadata statusMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+                                                   key: 'status',
+                                                   value: attributesBlock.status,
+                                                   createdBy: user.getEmailAddress(),
+                                                   multiFacetAwareItem: multiFacetAware)
+            multiFacetAware.addToMetadata(statusMetadata)
+            metadataService.save(statusMetadata)
         }
 
+        findMultiFacetAwareService(multiFacetAware.domainType).save(multiFacetAware)
         attributesBlock
     }
 
@@ -324,13 +346,6 @@ class DigitalObjectIdentifiersService {
             passwordProperty: apiPropertyList.find { it.key == 'password' },
             siteUrlProperty : apiPropertyService.findByApiPropertyEnum(ApiPropertyEnum.SITE_URL),
         ]
-    }
-
-    String getStatus(MultiFacetAware multiFacetAware) {
-        List<Metadata> internalMetadata = metadataService.findAllByMultiFacetAwareItemIdAndNamespace(
-            multiFacetAware.id,
-            "${digitalObjectIdentifiersProfileProviderService.metadataNamespace}")
-        internalMetadata.find { it.key = 'status' }
     }
 
     MultiFacetAware findMultiFacetAwareItemByDomainTypeAndId(String domainType, String multiFacetAwareItemIdString) {
