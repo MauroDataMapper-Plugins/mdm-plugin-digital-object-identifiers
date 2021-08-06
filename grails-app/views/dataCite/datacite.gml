@@ -8,28 +8,15 @@ xmlDeclaration()
     'identifier'(sd.Identifiers, identifierType: 'DOI', sd.identifier)
     'creators' {
         'creator' {
-            ('creatorName'(sd."Creator Name"))
+            ('creatorName'(sd."creators/creator/creatorName"))
         }
     }
-//    'creators' {
-//        sd.creators.each { cr ->
-//            'creator' {
-//                'creatorName'(cr.creatorName)
-//            }
-//        }
-//    }
-
-//    'titles' {
-//        sd.titles.each { ti ->
-//            'title'(ti.title)
-//        }
-//    }
     'titles' {
-        'title'(sd.Title)
+        'title'(sd."titles/title" )
     }
-    'publisher'(sd.Publisher)
-    'publicationYear'(sd."Publication Year")
-    'resourceType'(sd.resourceType, resourceTypeGeneral: sd."Resource Type")
+    'publisher'(sd.publisher)
+    'publicationYear'(sd.publicationYear)
+    'resourceType'(sd.resourceType, resourceTypeGeneral: sd.resourceType)
     if (sd.descriptions) {
         'descriptions' {
             sd.descriptions.each { de ->

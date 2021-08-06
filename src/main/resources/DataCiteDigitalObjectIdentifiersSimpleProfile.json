@@ -4,6 +4,38 @@
     "sectionDescription":"Summary metadata fields for DOI profiles.",
     "fields": [
       {
+        "fieldName": "Doi",
+        "metadataPropertyName": "doi",
+        "description": "Prefix and suffix combined",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Prefix",
+        "metadataPropertyName": "prefix",
+        "description": "DOI prefix",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Suffix",
+        "metadataPropertyName": "suffix",
+        "description": "DOI suffix",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Status",
+        "metadataPropertyName": "status",
+        "description": "Placeholder - status of DOI: draft, findable, retired.",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
         "fieldName": "Identifier",
         "metadataPropertyName": "identifier",
         "description": "A persistent identifier that identifies a resource. This will be filled in by the API upon submission",

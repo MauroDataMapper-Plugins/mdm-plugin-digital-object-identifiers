@@ -116,7 +116,7 @@ class DigitalObjectIdentifiersServerClient {
         }
     }
 
-    private Map<String, Object> retrieveMapFromClient(String url, String username, String password) {
+    Map<String, Object> retrieveMapFromClient(String url, String username, String password) {
         try {
             HttpRequest request = HttpRequest.GET(UriBuilder.of(url).build()).basicAuth(username, password)
             Flowable<Map> response = client.retrieve(request,

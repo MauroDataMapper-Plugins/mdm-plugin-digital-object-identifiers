@@ -26,6 +26,8 @@ import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MultiFacetAware
 import uk.ac.ox.softeng.maurodatamapper.core.traits.service.MultiFacetAwareService
 import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile.DigitalObjectIdentifiersProfileProviderService
 import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.web.client.DigitalObjectIdentifiersServerClient
+import uk.ac.ox.softeng.maurodatamapper.security.User
+import uk.ac.ox.softeng.maurodatamapper.security.UserSecurityPolicyManager
 
 import grails.gorm.transactions.Transactional
 import grails.plugin.markup.view.MarkupViewTemplateEngine
@@ -101,10 +103,10 @@ class DigitalObjectIdentifiersService {
         metadataService.findServiceForMultiFacetAwareDomainType(multiFacetAwareDomainType)
     }
 
-    def retireDoi(MultiFacetAware multiFacetAware, String submissionType) {
+    def retireDoi(MultiFacetAware multiFacetAware, String submissionType, User user) {
 
         String status = getStatus(multiFacetAware)
-        if (status == 'retired') throw new ApiBadRequestException('sd01', 'already retired')
+        if (status == 'registered') throw new ApiBadRequestException('SD01', 'MFA already registered as retired')
 
         List<ApiProperty> apiPropertyList = ApiProperty.findAllByCategory(BootStrap.DOI_API_PROPERTY_CATEGORY)
 
@@ -118,36 +120,15 @@ class DigitalObjectIdentifiersService {
                                                                                                                              "dois",
                                                                                                                              applicationContext)
 
-        String suffix = multiFacetAware.suffix
+        Map attributesBlock = createAttributesBlock(multiFacetAware)
 
-        Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.retrieveMapFromClient(prefixProperty + '/' + suffix,
-                                                                                                   usernameProperty,
-                                                                                                   passwordProperty)
-
-        if (responseBody.status == 'draft') {
-            Map retireBody = createDoiBody(xmlEncoded, prefixProperty, suffix, 'register')
-        }
-        else if (responseBody.status == 'findable') {
-            Map retireBody = createDoiBody(xmlEncoded, prefixProperty, suffix, 'hide')
-        }
-        else {
-            throw new ApiBadRequestException('sd02', 'Incompatible status of DOI.')
-        }
-
-        Map<String,Object> responseFinalBody = digitalObjectIdentifiersServerClient.putMapToClient('',
-                                                                                                   retireBody,
-                                                                                                   usernameProperty,
-                                                                                                   passwordProperty)
-
-        //update the internal NS MD to retired
-        multiFacetAware.status = 'retired'
-
-        //save multiFacetAware
+        submitAsRetire(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, siteUrlProperty, usernameProperty, passwordProperty,
+                       multiFacetAware, user)
 
         return multiFacetAware
     }
 
-    def submitDoi(MultiFacetAware multiFacetAware, String submissionType) {
+    def submitDoi(MultiFacetAware multiFacetAware, String submissionType, User user) {
 
         String status = getStatus(multiFacetAware)
 
@@ -160,7 +141,8 @@ class DigitalObjectIdentifiersService {
         ApiProperty prefixProperty = apiPropertyList.find {it.key == 'prefix'}
         ApiProperty usernameProperty = apiPropertyList.find {it.key == 'username'}
         ApiProperty passwordProperty = apiPropertyList.find {it.key == 'password'}
-        ApiProperty siteUrlProperty = apiPropertyList.find {it.key == 'site.url'}
+
+        ApiProperty siteUrlProperty =  apiPropertyService.findByApiPropertyEnum(ApiPropertyEnum.SITE_URL)
 
         DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(endpointProperty.value,
                                                                                                                              "dois",
@@ -168,48 +150,28 @@ class DigitalObjectIdentifiersService {
         Map attributesBlock = createAttributesBlock(multiFacetAware)
 
         if (!attributesBlock.suffix) {
-            submitAsSimple(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, usernameProperty, passwordProperty)
+            submitAsSimple(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, usernameProperty, passwordProperty,
+                           multiFacetAware, user)
         }
 
         if(submissionType == 'draft'){
-            submitAsDraft(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, usernameProperty, passwordProperty)
+            submitAsDraft(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, usernameProperty, passwordProperty,
+                          multiFacetAware, user)
         }
 
         if(submissionType == 'retire'){
-            submitAsRetire(digitalObjectIdentifiersServerClient, attributesBlock)
+            submitAsRetire(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, siteUrlProperty, usernameProperty,
+                           passwordProperty, multiFacetAware, user)
         }
 
         if(submissionType == 'finalise'){
-            if(!attributesBlock.suffix){
-                attributesBlock = submitAsDraft(digitalObjectIdentifiersServerClient, attributesBlock)
-                // make sure all data saved and attributesBlock is updated (especially the suffix)
-            }
-            submitAsFinal(digitalObjectIdentifiersServerClient, attributesBlock)
+            submitAsFinal(digitalObjectIdentifiersServerClient, attributesBlock, prefixProperty, siteUrlProperty, usernameProperty,
+                          passwordProperty, multiFacetAware, user)
         }
-
-
-        ///////////
-
-//        String suffix = responseDraftBody.suffix
-//        multiFacetAware.suffix = responseDraftBody.suffix
-//        multiFacetAware.status = responseDraftBody.status
-//
-//        Map finalBody = createEventDoiBody(multiFacetAware, prefixProperty, suffix, 'publish')
-//        if(!finalBody.url){
-//            String url = "${siteUrlProperty.value}/#/doi/${prefixProperty.value}/${suffix}"
-//        }
-//        Map<String,Object> responseFinalBody = digitalObjectIdentifiersServerClient.putMapToClient('',
-//                                                                                               finalBody,
-//                                                                                               usernameProperty,
-//                                                                                               passwordProperty)
-
-
-        //save profile data
-
     }
 
     def submitAsSimple(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
-                       ApiProperty usernameProperty, ApiProperty passwordProperty) {
+                       ApiProperty usernameProperty, ApiProperty passwordProperty, MultiFacetAware multiFacetAware, User user) {
 
         Map simpleBody = createDoiBody(prefixProperty.value)
         Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.sendMapToClient('',
@@ -217,56 +179,104 @@ class DigitalObjectIdentifiersService {
                                                                                                usernameProperty.value,
                                                                                                passwordProperty.value)
 
-        updateFromResponse(responseBody, attributesBlock)
+        updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
     }
 
     def submitAsDraft(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
-                     ApiProperty usernameProperty, ApiProperty passwordProperty) {
+                     ApiProperty usernameProperty, ApiProperty passwordProperty, MultiFacetAware multiFacetAware, User user) {
 
         String encodedXml = createAndEncodeDataCiteXml(attributesBlock)
-        Map draftBody = createDoiBody(prefixProperty.value, encodedXml, attributesBlock.suffix)
+        Map draftBody = createDoiBody(prefixProperty.value, encodedXml, attributesBlock.suffix as String)
 
         Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient(prefixProperty.value + '/' + attributesBlock.suffix,
                                                                                               draftBody,
                                                                                               usernameProperty.value,
                                                                                               passwordProperty.value)
 
-        updateFromResponse(responseBody, attributesBlock)
+        updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
     }
 
-    def submitAsFinal(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
-                      ApiProperty siteUrlProperty, ApiProperty usernameProperty, ApiProperty passwordProperty){
+    def submitAsRetire(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
+                       ApiProperty siteUrlProperty, ApiProperty usernameProperty, ApiProperty passwordProperty, MultiFacetAware multiFacetAware,
+                       User user){
 
+        String event
+        if(attributesBlock.status == 'draft') {
+            event = 'register'
+        }
+        else if (attributesBlock.status == 'findable') {
+            event = 'hide'
+        }
+        else {
+            throw new ApiBadRequestException('sd02', 'Incompatible status of DOI.')
+        }
+
+
+        if(!siteUrlProperty){
+            throw new ApiBadRequestException('DOISXX','Cannot submit DOI without the Site URL being set')
+        }
         if(!attributesBlock.url) {
             attributesBlock.url = "${siteUrlProperty.value}/#/doi/${prefixProperty.value}/${attributesBlock.suffix}"
         }
-        String xmlEncoded = createDataCiteXml(attributesBlock)
-        Map finalBody = createDoiBody(xmlEncoded, prefixProperty.value, attributesBlock.suffix as String, 'publish')
+        String encodedXml = createAndEncodeDataCiteXml(attributesBlock)
 
-        Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient('',
-                                                                                               finalBody,
-                                                                                               usernameProperty,
-                                                                                               passwordProperty)
+        Map retireBody = createDoiBody(prefixProperty.value, encodedXml, attributesBlock.suffix as String, event, attributesBlock.url as String)
+
+        Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient(prefixProperty.value + '/' + attributesBlock.suffix,
+                                                                                              retireBody,
+                                                                                              usernameProperty.value,
+                                                                                              passwordProperty.value)
+
+        updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
+    }
+
+    def submitAsFinal(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
+                      ApiProperty siteUrlProperty, ApiProperty usernameProperty, ApiProperty passwordProperty, MultiFacetAware multiFacetAware,
+                      User user){
+
+        String event = 'publish'
+        attributesBlock.event = event
+
+        if(!siteUrlProperty){
+            throw new ApiBadRequestException('DOISXX','Cannot submit DOI without the Site URL being set')
+        }
+        if(!attributesBlock.url) {
+            attributesBlock.url = "${siteUrlProperty.value}/#/doi/${prefixProperty.value}/${attributesBlock.suffix}"
+        }
+
+        String encodedXml = createAndEncodeDataCiteXml(attributesBlock)
+        Map finalBody = createDoiBody(prefixProperty.value, encodedXml, attributesBlock.suffix as String, event, attributesBlock.url as String)
+
+        Map<String,Object> responseBody = digitalObjectIdentifiersServerClient.putMapToClient(prefixProperty.value + '/' + attributesBlock.suffix,
+                                                                                              finalBody,
+                                                                                              usernameProperty.value,
+                                                                                              passwordProperty.value)
 
         updateFromResponse(responseBody, attributesBlock)
     }
 
-    def updateFromResponse( Map<String,Object> responseBody, Map attributesBlock){
+    def updateFromResponse(Map<String,Object> responseBody, Map attributesBlock, MultiFacetAware multiFacetAware,
+                           User user){
 
-        //TODO this functionality
-        attributesBlock.suffix = responseBody.data.attributes.suffix
-        attributesBlock.identifier = responseBody.data.attributes.doi
-//        responseBody.data.attributes.each {k,v ->
-//            if(attributesBlock.containsKey(k) && attributesBlock[k] != v){
-//                attributesBlock.value = v
-//                // update AB
-//                // update relevant MD
-//            }
-//            else{
-//                // add to AB
-//                // add to MD
-//            }
-//        }
+        if(!attributesBlock.suffix){
+            attributesBlock.suffix = responseBody.data.attributes.suffix
+            log.debug(attributesBlock.suffix)
+            Metadata suffixMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+                                                   key: 'suffix',
+                                                   value: attributesBlock.suffix,
+                                                   createdBy: user.getEmailAddress())
+            multiFacetAware.addToMetadata(suffixMetadata)
+            metadataService.addFacetAndSaveMultiFacetAware('metadata', suffixMetadata)
+        }
+        if(!attributesBlock.identifier){
+            attributesBlock.identifier = responseBody.data.attributes.doi
+            Metadata doiMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+                                                key: 'identifier',
+                                                value: attributesBlock.identifier,
+                                                createdBy: user.getEmailAddress())
+            multiFacetAware.addToMetadata(doiMetadata)
+            metadataService.addFacetAndSaveMultiFacetAware('metadata', doiMetadata)
+        }
 
         attributesBlock
     }
@@ -277,7 +287,7 @@ class DigitalObjectIdentifiersService {
 
         List<Map<String, Object>> sectionsData = profile.sections.collect {section ->
             Map<String, Object> data = section.fields.collectEntries {field ->
-                [field.fieldName, field.currentValue]
+                [field.metadataPropertyName, field.currentValue]
             }
             data.findAll {k, v -> v}
         }
@@ -290,7 +300,7 @@ class DigitalObjectIdentifiersService {
         body
     }
 
-    Map createDoiBody(String prefix, String encodedXml=null, String suffix=null, String event=null) {
+    Map createDoiBody(String prefix, String encodedXml=null, String suffix=null, String event=null, String url=null) {
         Map base =  [
             data: [
                 type: "dois",
@@ -310,6 +320,9 @@ class DigitalObjectIdentifiersService {
             base.data.attributes.suffix = suffix
             base.data.attributes.doi =  "$prefix/$suffix"
             base.data.id = "$prefix/$suffix"
+        }
+        if(url){
+            base.data.attributes.url = url
         }
         base
     }

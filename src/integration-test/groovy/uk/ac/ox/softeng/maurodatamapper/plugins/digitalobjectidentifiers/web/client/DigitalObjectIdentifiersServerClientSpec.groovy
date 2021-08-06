@@ -27,7 +27,7 @@ class DigitalObjectIdentifiersServerClientSpec extends BaseIntegrationSpec {
 
     void 'DOI-01: Test posting to DataCite'() {
         given:
-        Map props =  grailsApplication.config.maurodatamapper.digitalobjectidentifiers
+        Map props = grailsApplication.config.maurodatamapper.digitalobjectidentifiers
         String entryId = UUID.randomUUID()
         log.debug(entryId)
         String body = '''
@@ -149,27 +149,4 @@ class DigitalObjectIdentifiersServerClientSpec extends BaseIntegrationSpec {
         ex.cause.response.status.code == 403
     }
 
-    /**
-     * Method bare bones body
-     * takes variable prefix
-     * creates minimal info
-     * prefix: 10.80079
-     * status: draft
-     *
-     * gets back suffix
-     * save suffix on to profile
-     * generate body with status finalised
-     *
-     * if submission type finalised, check for suffix
-     * without suffix,
-     */
-
-
-
-    /**
-     *
-     * Another test where we post with the "prefix" field which gets us the "suffix" using "draft" state
-     * then we post using the finalised state with the "prefix" and "suffix" (and probably the "doi") at this point we will also post the URL
-     *
-     */
 }

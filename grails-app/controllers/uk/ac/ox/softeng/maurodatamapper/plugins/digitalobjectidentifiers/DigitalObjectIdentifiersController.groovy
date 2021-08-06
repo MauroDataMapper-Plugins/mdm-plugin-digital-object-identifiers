@@ -17,7 +17,7 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
-import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiInternalException
+
 import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
 import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MultiFacetAware
 import uk.ac.ox.softeng.maurodatamapper.core.traits.controller.ResourcelessMdmController
@@ -58,8 +58,11 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
             return notFound(params.multiFacetAwareItemClass, params.multiFacetAwareItemId)
         }
 
-        if(!params.submissionType || params.submissionType == 'final' || params.submissionType == 'draft') {
-            digitalObjectIdentifiersService.submitDoi(multiFacetAware, params.submissionType)
+        if(!params.submissionType || params.submissionType == 'finalise' || params.submissionType == 'draft') {
+            digitalObjectIdentifiersService.submitDoi(multiFacetAware, params.submissionType, currentUser)
+        }
+        if(params.submissionType == 'retire') {
+            digitalObjectIdentifiersService.retireDoi(multiFacetAware, params.submissionType, currentUser)
         }
 
         respond multiFacetAware
