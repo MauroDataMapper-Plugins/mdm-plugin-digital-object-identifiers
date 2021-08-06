@@ -280,6 +280,10 @@ class DigitalObjectIdentifiersService {
             multiFacetAware.addToMetadata(doiMetadata)
             metadataService.addFacetAndSaveMultiFacetAware('metadata', doiMetadata)
         }
+        if (responseBody.data.attributes.state) {
+            attributesBlock.status = responseBody.data.attributes.state
+            multiFacetAware.metadata.find{it.key == 'status'}.value = responseBody.data.attributes.state
+        }
 
         attributesBlock
     }
