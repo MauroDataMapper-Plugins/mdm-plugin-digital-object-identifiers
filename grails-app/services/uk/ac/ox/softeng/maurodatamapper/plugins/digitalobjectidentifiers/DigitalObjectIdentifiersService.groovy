@@ -20,6 +20,8 @@ package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiBadRequestException
 import uk.ac.ox.softeng.maurodatamapper.api.exception.ApiInternalException
 import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
+import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiPropertyEnum
+import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiPropertyService
 import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
 import uk.ac.ox.softeng.maurodatamapper.core.facet.MetadataService
 import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MultiFacetAware
@@ -27,7 +29,6 @@ import uk.ac.ox.softeng.maurodatamapper.core.traits.service.MultiFacetAwareServi
 import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile.DigitalObjectIdentifiersProfileProviderService
 import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.web.client.DigitalObjectIdentifiersServerClient
 import uk.ac.ox.softeng.maurodatamapper.security.User
-import uk.ac.ox.softeng.maurodatamapper.security.UserSecurityPolicyManager
 
 import grails.gorm.transactions.Transactional
 import grails.plugin.markup.view.MarkupViewTemplateEngine
@@ -45,6 +46,7 @@ class DigitalObjectIdentifiersService {
 
     MetadataService metadataService
     DigitalObjectIdentifiersProfileProviderService digitalObjectIdentifiersProfileProviderService
+    ApiPropertyService apiPropertyService
 
     @Autowired
     List<MultiFacetAwareService> multiFacetAwareServices
@@ -114,7 +116,8 @@ class DigitalObjectIdentifiersService {
         ApiProperty prefixProperty = apiPropertyList.find {it.key == 'prefix'}
         ApiProperty usernameProperty = apiPropertyList.find {it.key == 'username'}
         ApiProperty passwordProperty = apiPropertyList.find {it.key == 'password'}
-        ApiProperty siteUrlProperty = apiPropertyList.find {it.key == 'site.url'}
+
+        ApiProperty siteUrlProperty =  apiPropertyService.findByApiPropertyEnum(ApiPropertyEnum.SITE_URL)
 
         DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient = new DigitalObjectIdentifiersServerClient(endpointProperty.value,
                                                                                                                              "dois",
@@ -252,7 +255,7 @@ class DigitalObjectIdentifiersService {
                                                                                               usernameProperty.value,
                                                                                               passwordProperty.value)
 
-        updateFromResponse(responseBody, attributesBlock)
+        updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
     }
 
     def updateFromResponse(Map<String,Object> responseBody, Map attributesBlock, MultiFacetAware multiFacetAware,

@@ -41,6 +41,7 @@ class DigitalObjectIdentifiersServiceFunctionalSpec extends BaseFunctionalSpec {
     @Transactional
     def cleanupSpec() {
         log.debug('CleanupSpec DataModelFunctionalSpec')
+        ApiProperty.findByKey('site.url').delete(flush:true)
         cleanUpResources(Folder, Classifier, SemanticLink)
     }
 
