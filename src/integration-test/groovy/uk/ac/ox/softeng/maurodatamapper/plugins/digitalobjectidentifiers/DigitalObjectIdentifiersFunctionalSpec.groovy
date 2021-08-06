@@ -17,14 +17,11 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
-import uk.ac.ox.softeng.maurodatamapper.core.authority.Authority
-import uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress
+import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
 import uk.ac.ox.softeng.maurodatamapper.core.container.Classifier
 import uk.ac.ox.softeng.maurodatamapper.core.container.Folder
-import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
 import uk.ac.ox.softeng.maurodatamapper.core.facet.SemanticLink
-import uk.ac.ox.softeng.maurodatamapper.datamodel.DataModel
-import uk.ac.ox.softeng.maurodatamapper.datamodel.bootstrap.BootstrapModels
+import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile.DigitalObjectIdentifiersProfileProviderService
 import uk.ac.ox.softeng.maurodatamapper.test.functional.BaseFunctionalSpec
 
 import grails.gorm.transactions.Transactional
@@ -34,16 +31,14 @@ import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpStatus
 import spock.lang.Shared
 
-import java.nio.charset.Charset
-
-import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.getFUNCTIONAL_TEST
-import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.getFUNCTIONAL_TEST
+import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.FUNCTIONAL_TEST
 
 @Slf4j
 @Integration
 class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
 
     DigitalObjectIdentifiersService digitalObjectIdentifiersService
+    DigitalObjectIdentifiersProfileProviderService digitalObjectIdentifiersProfileProviderService
 
     @Shared
     String doiString
@@ -58,6 +53,8 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         sessionFactory.currentSession.flush()
         folderId = new Folder(label: 'Functional Test Folder', createdBy: FUNCTIONAL_TEST).save(flush: true).id
         assert folderId
+        ApiProperty siteUrl = new ApiProperty(key: 'site.url', value: 'http://jenkins.cs.ox.ac.uk/mdm', createdBy: FUNCTIONAL_TEST)
+        checkAndSave(siteUrl)
 
         doiString = '10.4124/kzn3hb2vh8.1'
     }
@@ -65,6 +62,7 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
     @Transactional
     def cleanupSpec() {
         log.debug('CleanupSpec DataModelFunctionalSpec')
+        ApiProperty.findByKey('site.url').delete(flush: true)
         cleanUpResources(Folder, Classifier, SemanticLink)
     }
 
@@ -109,27 +107,271 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
 
     }
 
-    String getStatusCheckId(){
-        POST("folders/$folderId/dataModels",[
-            label : 'Functional Test DataModel'
+
+    void 'test draft from new Doi endpoint end to end'() {
+        given:
+        String id = buildTestDataModel()
+
+        when:
+        POST("dataModels/${id}/doi?submissionType=draft", [:])
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id == id
+
+        when:
+        GET("dataModels/$id/profile/" +
+            "${digitalObjectIdentifiersProfileProviderService.namespace}/${digitalObjectIdentifiersProfileProviderService.name}")
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+
+        responseBody().id
+        responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'creators/creator/creatorName' }.currentValue ==
+        'Creator Anthony Char'
+        responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'titles/title' }.currentValue == 'DOI DataCite BDI title'
+        responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'publisher' }.currentValue == 'Publisher Anthony'
+        responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'publicationYear' }.currentValue == '2021'
+
+        cleanup:
+        cleanUpDataModel(id)
+    }
+
+    void 'test finalise from new Doi endpoint end to end'() {
+        given:
+        String id = buildTestDataModel()
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'event',
+            value    : 'publish'
+        ])
+
+        when:
+        POST("dataModels/${id}/doi?submissionType=finalise", [:])
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id == id
+
+        when:
+        GET("dataModels/$id/profile/" +
+            "${digitalObjectIdentifiersProfileProviderService.namespace}/${digitalObjectIdentifiersProfileProviderService.name}")
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id
+
+
+        cleanup:
+        cleanUpDataModel(id)
+    }
+
+    void 'test finalise from draft Doi endpoint end to end'() {
+        given:
+        String id = buildTestDataModel()
+        POST("dataModels/${id}/doi?submissionType=draft", [:])
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'event',
+            value    : 'publish'
+        ])
+
+        when:
+        POST("dataModels/${id}/doi?submissionType=finalise", [:])
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id == id
+
+        when:
+        GET("dataModels/$id/profile/" +
+            "${digitalObjectIdentifiersProfileProviderService.namespace}/${digitalObjectIdentifiersProfileProviderService.name}")
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id
+
+
+        cleanup:
+        cleanUpDataModel(id)
+
+    }
+
+    void 'test finalise from registered Doi endpoint end to end'() {
+        given:
+        String id = buildTestDataModel()
+        POST("dataModels/${id}/doi?submissionType=draft", [:])
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'event',
+            value    : 'register'
+        ])
+        POST("dataModels/${id}/doi?submissionType=retire", [:])
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'event',
+            value    : 'publish'
+        ])
+
+        when:
+        POST("dataModels/${id}/doi?submissionType=finalise", [:])
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id == id
+
+        when:
+        GET("dataModels/$id/profile/" +
+            "${digitalObjectIdentifiersProfileProviderService.namespace}/${digitalObjectIdentifiersProfileProviderService.name}")
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id
+
+
+        cleanup:
+        cleanUpDataModel(id)
+
+    }
+
+    void 'test retire from draft Doi endpoint end to end'() {
+        given:
+        String id = buildTestDataModel()
+        POST("dataModels/${id}/doi?submissionType=draft", [:])
+
+        when:
+        POST("dataModels/${id}/doi?submissionType=retire", [:])
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id == id
+
+        when:
+        GET("dataModels/$id/profile/" +
+            "${digitalObjectIdentifiersProfileProviderService.namespace}/${digitalObjectIdentifiersProfileProviderService.name}")
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id
+
+        cleanup:
+        cleanUpDataModel(id)
+    }
+
+    void 'test retire from finalise Doi endpoint end to end'() {
+        given:
+        String id = buildTestDataModel()
+        POST("dataModels/${id}/doi?submissionType=draft", [:])
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'event',
+            value    : 'publish'
+        ])
+        POST("dataModels/${id}/doi?submissionType=finalise", [:])
+
+        when:
+        POST("dataModels/${id}/doi?submissionType=retire", [:])
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id == id
+
+        when:
+        GET("dataModels/$id/profile/" +
+            "${digitalObjectIdentifiersProfileProviderService.namespace}/${digitalObjectIdentifiersProfileProviderService.name}")
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id
+
+        cleanup:
+        cleanUpDataModel(id)
+
+    }
+
+    String buildTestDataModel() {
+        POST("folders/$folderId/dataModels", [
+            label: 'Functional Test Model'
+        ]
+        )
+        verifyResponse(HttpStatus.CREATED, response)
+        String id = responseBody().id
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'identifiers/identifier',
+            value    : 'Test Identifier'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'creators/creator/creatorName',
+            value    : 'Creator Anthony Char'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'titles/title',
+            value    : 'DOI DataCite BDI title'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'publisher',
+            value    : 'Publisher Anthony'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'publicationYear',
+            value    : '2021'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'resourceType',
+            value    : 'Dataset'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        id
+    }
+
+    String getStatusCheckId() {
+        POST("folders/$folderId/dataModels", [
+            label: 'Functional Test DataModel'
         ])
         verifyResponse(HttpStatus.CREATED, response)
         String id = responseBody().id
 
-        POST("dataModels/$id/metadata",[
+        POST("dataModels/$id/metadata", [
             namespace: digitalObjectIdentifiersService.buildNamespaceInternal(),
             key: DigitalObjectIdentifiersService.IDENTIFIER_KEY,
             value: doiString
         ])
         verifyResponse(HttpStatus.CREATED, response)
 
-        POST("dataModels/$id/metadata",[
+        POST("dataModels/$id/metadata", [
             namespace: digitalObjectIdentifiersService.buildNamespaceInternal(),
-            key: digitalObjectIdentifiersService.STATUS_KEY,
-            value: DoiStatusEnum.DRAFT.toString()
+            key      : digitalObjectIdentifiersService.STATUS_KEY,
+            value    : DoiStatusEnum.DRAFT.toString()
         ])
         verifyResponse(HttpStatus.CREATED, response)
 
         id
+    }
+
+    void cleanUpDataModel(String id) {
+        if (id) {
+            DELETE("dataModels/$id?permanent=true")
+            assert response.status() == HttpStatus.NO_CONTENT
+            sleep(20)
+        }
     }
 }
