@@ -17,10 +17,12 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
+
 import uk.ac.ox.softeng.maurodatamapper.core.facet.Metadata
 import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MultiFacetAware
 import uk.ac.ox.softeng.maurodatamapper.core.traits.controller.ResourcelessMdmController
 
+import grails.gorm.transactions.Transactional
 import groovy.util.logging.Slf4j
 
 @Slf4j
@@ -41,9 +43,22 @@ class DigitalObjectIdentifiersController implements ResourcelessMdmController {
 
     def digitalObjectIdentifierInformation() {
         log.debug('find by domain and MultiFacetAware Id')
-        Map<String,String> information = digitalObjectIdentifiersService.findDoiInformationByMultiFacetAwareItemId(params.multiFacetAwareItemDomainType, params.multiFacetAwareItemId)
+        Map<String, String> information = digitalObjectIdentifiersService.findDoiInformationByMultiFacetAwareItemId(
+            params.multiFacetAwareItemDomainType, params.multiFacetAwareItemId)
         if (!information) return notFound(Metadata, params.multiFacetAwareItemId)
         respond params.multiFacetAwareItemId, [model: information, view: 'digitalObjectIdentifierInformation']
 
+    }
+
+    @Transactional
+    def submit() {
+        MultiFacetAware multiFacetAware =
+            digitalObjectIdentifiersService.findMultiFacetAwareItemByDomainTypeAndId(params.multiFacetAwareItemDomainType,
+                                                                                     params.multiFacetAwareItemId)
+        if (!multiFacetAware) {
+            return notFound(params.multiFacetAwareItemClass, params.multiFacetAwareItemId)
+        }
+        digitalObjectIdentifiersService.submitDoi(multiFacetAware, params.submissionType, currentUser)
+        respond multiFacetAware
     }
 }

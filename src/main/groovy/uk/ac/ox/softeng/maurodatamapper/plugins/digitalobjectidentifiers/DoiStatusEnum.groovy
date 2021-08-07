@@ -21,7 +21,8 @@ enum DoiStatusEnum {
     DRAFT("draft"),
     FINAL("final"),
     RETIRED("retired"),
-    NOT_APPLICABLE("not_applicable")
+    NOT_APPLICABLE("not_applicable"),
+    REGISTERED('registered')
 
     private final String key
 

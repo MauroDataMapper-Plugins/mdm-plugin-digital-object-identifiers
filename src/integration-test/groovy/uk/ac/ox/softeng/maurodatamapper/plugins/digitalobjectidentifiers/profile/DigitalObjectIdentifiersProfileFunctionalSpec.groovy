@@ -30,6 +30,7 @@ import groovy.util.logging.Slf4j
 import io.micronaut.core.type.Argument
 import io.micronaut.http.HttpResponse
 import io.micronaut.http.HttpStatus
+import spock.lang.PendingFeature
 import spock.lang.Shared
 
 import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.getFUNCTIONAL_TEST
@@ -81,7 +82,7 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         verifyResponse HttpStatus.OK, localResponse
-        localResponse.body().find{it.name == "DigitalObjectIdentifiersProfileProviderService"}
+        localResponse.body().find { it.name == "DigitalObjectIdentifiersProfileProviderService" }
     }
 
     void 'test get all models in profile'() {
@@ -94,6 +95,7 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
         responseBody().count == 0 //currently empty
     }
 
+    @PendingFeature(reason = 'Need profile to be updated')
     void 'test save profile for model'() {
         given:
         String id = getSimpleDataModelId()
@@ -118,7 +120,7 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
         then:
         verifyResponse OK, localResponse
         localResponse.body().size() == 2
-        localResponse.body().find{it.name == 'DigitalObjectIdentifiersProfileProviderService'}
-        localResponse.body().find{it.displayName == 'Digital Object Identifiers DataCite Dataset Schema'}
+        localResponse.body().find { it.name == 'DigitalObjectIdentifiersProfileProviderService' }
+        localResponse.body().find { it.displayName == 'Digital Object Identifiers DataCite Dataset Schema' }
     }
 }

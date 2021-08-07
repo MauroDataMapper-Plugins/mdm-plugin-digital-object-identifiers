@@ -48,13 +48,13 @@ class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProvider
 
     @Override
     String getJsonResourceFile() {
-        'DataCiteDigitalObjectIdentifiersProfile.json'
+        'DataCiteDigitalObjectIdentifiersSimpleProfile.json'
     }
 
     @Override
     List<String> profileApplicableForDomains() {
         grailsApplication.getArtefacts(DomainClassArtefactHandler.TYPE)
-            .findAll {MetadataAware.isAssignableFrom(it.clazz) && !it.isAbstract()}
+            .findAll { MetadataAware.isAssignableFrom(it.clazz) && !it.isAbstract()}
             .collect {grailsClass -> grailsClass.getName()}
     }
 }
