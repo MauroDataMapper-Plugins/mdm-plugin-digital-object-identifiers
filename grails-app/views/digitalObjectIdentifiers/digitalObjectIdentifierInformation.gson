@@ -15,21 +15,11 @@
  *
  * SPDX-License-Identifier: Apache-2.0
  */
-package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
-
-class UrlMappings {
-
-    static mappings = {
-
-        group '/api', {
-            group "/${multiFacetAwareItemDomainType}/${multiFacetAwareItemId}", {
-                get "/doi"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierInformation')
-                post '/doi'(controller: 'digitalObjectIdentifiers', action: 'submit')
-            }
-
-            get "/doi/$digitalObjectIdentifier"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')
-            get "/doi/$doiPrefix/$doiSuffix"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')
-
-        }
-    }
+model {
+    String identifier
+    String status
+}
+json {
+    identifier identifier
+    status status
 }

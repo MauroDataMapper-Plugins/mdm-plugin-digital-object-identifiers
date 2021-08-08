@@ -17,19 +17,18 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
-class UrlMappings {
+import uk.ac.ox.softeng.maurodatamapper.core.traits.controller.MdmInterceptor
 
-    static mappings = {
+import java.nio.charset.Charset
 
-        group '/api', {
-            group "/${multiFacetAwareItemDomainType}/${multiFacetAwareItemId}", {
-                get "/doi"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierInformation')
-                post '/doi'(controller: 'digitalObjectIdentifiers', action: 'submit')
-            }
+class DigitalObjectIdentifiersInterceptor implements MdmInterceptor {
 
-            get "/doi/$digitalObjectIdentifier"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')
-            get "/doi/$doiPrefix/$doiSuffix"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')
-
+    boolean before() {
+        mapDomainTypeToClass('multiFacetAwareItem')
+        if (params.containsKey('doiPrefix')) {
+            params.digitalObjectIdentifier = "${params.doiPrefix}/${params.doiSuffix}"
         }
+        // Public access for all DOI info
+        true
     }
 }

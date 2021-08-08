@@ -17,19 +17,24 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
-class UrlMappings {
+enum DoiStatusEnum {
+    DRAFT("draft"),
+    FINAL("final"),
+    RETIRED("retired"),
+    NOT_APPLICABLE("not_applicable"),
+    REGISTERED('registered')
 
-    static mappings = {
+    private final String key
 
-        group '/api', {
-            group "/${multiFacetAwareItemDomainType}/${multiFacetAwareItemId}", {
-                get "/doi"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierInformation')
-                post '/doi'(controller: 'digitalObjectIdentifiers', action: 'submit')
-            }
+    DoiStatusEnum(String key) {
+        this.key = key
+    }
 
-            get "/doi/$digitalObjectIdentifier"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')
-            get "/doi/$doiPrefix/$doiSuffix"(controller: 'digitalObjectIdentifiers', action: 'digitalObjectIdentifierItem')
+    String toString() {
+        return key
+    }
 
-        }
+    static DoiStatusEnum findDoiStatus(String key) {
+        values().find { it.key == key }
     }
 }

@@ -1,0 +1,112 @@
+[
+  {
+    "sectionName":"DataCite DOI Fields",
+    "sectionDescription":"Summary metadata fields for DOI profiles.",
+    "fields": [
+      {
+        "fieldName": "Identifier",
+        "metadataPropertyName": "identifier",
+        "description": "The Identifier is a unique string that identifies a resource.  For software, determine whether the identifier is for a specific version of a piece of software, (per the Force11 Software Citation Principles11), or for all versions.",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName":"Creator Name",
+        "metadataPropertyName":"creators/name",
+        "description":"The full name of the creator.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Titles Title",
+        "metadataPropertyName":"titles/title",
+        "description":"A name or title by which a resource is known. May be the title of a dataset or the name of a piece of software.",
+        "minMultiplicity":1,
+        "maxMultiplicity":-1,
+        "dataType":"Text"
+      },
+      {
+        "fieldName":"Publisher",
+        "metadataPropertyName":"publisher",
+        "description":"The name of the entity that holds, archives, publishes prints, distributes, releases, issues, or produces the resource. This property will be used to formulate the citation, so consider the prominence of the role. For software, use Publisher for the code repository. If there is an entity other than a code repository, that 'holds, archives, publishes, prints, distributes, releases, issues, or produces' the code, use the property Contributor/contributorType/hostingInstitution for the code repository.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Publication Year",
+        "metadataPropertyName":"publicationYear",
+        "description":"The year when the data was or will be made publicly available. In the case of resources such as software or dynamic data where there may be multiple releases in one year, include the Date/dateType/dateInformation property and sub-properties to provide more information about the publication or release date details.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"Int"
+      },
+      {
+        "fieldName":"Subject",
+        "metadataPropertyName":"subjects/subject",
+        "description":"Subject, keyword, classification code, or key phrase describing the resource.",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Subject Scheme URI",
+        "metadataPropertyName":"subjects/schemeUri",
+        "description":"The URI of the subject identifier scheme.",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Subject Scheme",
+        "metadataPropertyName":"subjects/subjectScheme",
+        "description":"The name of the subject scheme or classification code or authority if one is used.",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"Text"
+      },
+      {
+        "fieldName":"Date",
+        "metadataPropertyName":"dates/date",
+        "description":"Different dates relevant to the work.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Date Type",
+        "metadataPropertyName":"dates/dateType",
+        "description":"The type of date.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Language",
+        "metadataPropertyName":"language",
+        "description":"The primary language of the resource.",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Description",
+        "metadataPropertyName":"descriptions/description",
+        "description":"All additional information that does not fit in any of the other categories. May be used for technical information.",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"Text"
+      },
+      {
+        "fieldName":"Description Type",
+        "metadataPropertyName":"descriptions/descriptionType",
+        "description":"The type of the Description.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      }
+    ]
+  }
+]
