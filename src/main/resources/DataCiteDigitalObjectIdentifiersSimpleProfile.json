@@ -6,7 +6,7 @@
       {
         "fieldName": "Doi",
         "metadataPropertyName": "doi",
-        "description": "Prefix and suffix combined",
+        "description": "Placeholder - prefix and suffix combined",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
@@ -14,7 +14,7 @@
       {
         "fieldName": "Prefix",
         "metadataPropertyName": "prefix",
-        "description": "DOI prefix",
+        "description": "Placeholder - DOI prefix",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
@@ -22,7 +22,7 @@
       {
         "fieldName": "Suffix",
         "metadataPropertyName": "suffix",
-        "description": "DOI suffix",
+        "description": "Placeholder - DOI suffix",
         "minMultiplicity": 0,
         "maxMultiplicity": 1,
         "dataType": "String"
@@ -44,6 +44,14 @@
         "dataType": "String"
       },
       {
+        "fieldName":"Creator",
+        "metadataPropertyName":"creators/creator",
+        "description":"Placeholder - creator details",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
         "fieldName":"Creator Name",
         "metadataPropertyName":"creators/creator/creatorName",
         "description":"The main researchers involved working on the data, or the authors of the publication in priority order. May be a corporate/institutional or personal name.",
@@ -52,11 +60,27 @@
         "dataType":"String"
       },
       {
+        "fieldName":"Creator Name Identifier",
+        "metadataPropertyName":"creators/creator/nameIdentifier",
+        "description":"Placeholder - name ID",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Creator Affiliation",
+        "metadataPropertyName":"creators/creator/affiliation",
+        "description":"Placeholder - affiliation of creator, company or institution they represent",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
         "fieldName":"Title",
         "metadataPropertyName":"titles/title",
         "description":"A name or title by which a resource is known.",
         "minMultiplicity":1,
-        "maxMultiplicity":1,
+        "maxMultiplicity":-1,
         "dataType":"Text"
       },
       {
@@ -101,12 +125,156 @@
         ]
       },
       {
+        "fieldName":"Subject",
+        "metadataPropertyName":"subjects/subject",
+        "description":"Subject, keywords, classification codes, or key phrases describing the resource.",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Contributor",
+        "metadataPropertyName":"contributors/contributor",
+        "description":"The institution or person responsible for collecting, creating, or otherwise contributing to the development of the dataset.",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Contributor Name",
+        "metadataPropertyName":"contributors/contributor/contributorName",
+        "description":"Placeholder - full name",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Contributor Name Identifier",
+        "metadataPropertyName":"contributors/contributor/nameIdentifier",
+        "description":"Placeholder - name ID",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Contributor Affiliation",
+        "metadataPropertyName":"contributors/contributor/affiliation",
+        "description":"Placeholder - affiliation of creator, institution or company they represent",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Date",
+        "metadataPropertyName":"dates/date",
+        "description":"Different dates relevant to the work.",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Language",
+        "metadataPropertyName":"language",
+        "description":"Primary language of the resource. Allowed values are taken from  IETF BCP 47, ISO 639-1 language codes. For English, use 'en'.",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Alternate Identifier",
+        "metadataPropertyName":"alternateIdentifiers/alternateIdentifier",
+        "description":"An identifier or identifiers other than the primary Identifier applied to the resource being registered. This may be any alphanumeric string which is unique within its domain of issue. May be used for local identifiers. AlternateIdentifier should be used for another identifier of the same instance (same location, same file).",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Related Identifier",
+        "metadataPropertyName":"relatedIdentifiers/relatedIdentifier",
+        "description":"Identifiers of related resources. Use this property to indicate subsets of properties, as appropriate.",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Size",
+        "metadataPropertyName":"sizes/size",
+        "description":"Unstructured size information about the resource.",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Format",
+        "metadataPropertyName":"formats/format",
+        "description":"Technical format of the resource. Use file extension or MIME type where possible.",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Version",
+        "metadataPropertyName":"version",
+        "description":"Version number of the resource. If the primary resource has changed the version number increases. Register a new identifier for a major version change. Individual stewards need to determine which are major vs. minor versions. May be used in conjunction with properties 11 and 12 (AlternateIdentifier and RelatedIdentifier) to indicate various information updates. May be used in conjunction with property 17 (Description) to indicate the nature and file/record range of version.",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Rights",
+        "metadataPropertyName":"rightsList/rights",
+        "description":"Any rights information for this resource. Provide a rights management statement for the resource or reference a service providing such information. Include embargo information if applicable.\nUse the complete title of a license and include version information if applicable.",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
         "fieldName":"Description",
         "metadataPropertyName":"descriptions/description",
         "description":"All additional information that does not fit in any of the other categories. May be used for technical information.",
         "minMultiplicity":0,
-        "maxMultiplicity":1,
+        "maxMultiplicity":-1,
         "dataType":"Text"
+      },
+      {
+        "fieldName":"Funding Reference",
+        "metadataPropertyName":"fundingReference/fundingReferences",
+        "description":"Information about financial support (funding) for the resource being registered.",
+        "minMultiplicity":0,
+        "maxMultiplicity":-1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Funder Name",
+        "metadataPropertyName":"fundingReference/fundingReferences/funderName",
+        "description":"Name of the funding provider.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Funder Identifier",
+        "metadataPropertyName":"fundingReference/fundingReferences/fundingIdentifier",
+        "description":"Uniquely identifies a funding entity, according to various types.",
+        "minMultiplicity":1,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Award Number",
+        "metadataPropertyName":"fundingReference/fundingReferences/awardNumber",
+        "description":"The code assigned by the funder to a sponsored award (grant).",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"String"
+      },
+      {
+        "fieldName":"Award Title",
+        "metadataPropertyName":"fundingReference/fundingReferences/awardTitle",
+        "description":"The human readable title of the award (grant).",
+        "minMultiplicity":0,
+        "maxMultiplicity":1,
+        "dataType":"String"
       }
     ]
   }
