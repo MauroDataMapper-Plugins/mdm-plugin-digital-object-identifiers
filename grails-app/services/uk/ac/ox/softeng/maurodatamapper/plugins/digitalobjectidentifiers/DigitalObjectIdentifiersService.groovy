@@ -266,7 +266,18 @@ class DigitalObjectIdentifiersService {
             multiFacetAware.addToMetadata(suffixMetadata)
             metadataService.save(suffixMetadata)
         }
-        if (!attributesBlock.identifier) {
+        if (responseBody.data.attributes.prefix) {
+            attributesBlock.prefix = responseBody.data.attributes.prefix
+
+            Metadata prefixMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+                                                   key: 'prefix',
+                                                   value: attributesBlock.prefix,
+                                                   createdBy: user.getEmailAddress(),
+                                                   multiFacetAwareItem: multiFacetAware)
+            multiFacetAware.addToMetadata(prefixMetadata)
+            metadataService.save(prefixMetadata)
+        }
+        if (responseBody.data.attributes.doi) {
             attributesBlock.identifier = responseBody.data.attributes.doi
             Metadata doiMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
                                                 key: 'identifier',

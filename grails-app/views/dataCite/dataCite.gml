@@ -9,11 +9,11 @@ xmlDeclaration()
     'creators' {
         'creator' {
             ('creatorName'(sd."creators/creator/creatorName"))
-            if(sd."creators/creator/affiliation") {
-                ('affiliation'(sd."creators/creator/affiliation"))
-            }
             if(sd."creators/creator/nameIdentifier") {
                 ('nameIdentifier'(sd."creators/creator/nameIdentifier"))
+            }
+            if(sd."creators/creator/affiliation") {
+                ('affiliation'(sd."creators/creator/affiliation"))
             }
         }
     }
@@ -25,24 +25,21 @@ xmlDeclaration()
     'resourceType'(sd.resourceType, resourceTypeGeneral: sd.resourceType)
     if (sd."subjects/subject") {
         'subjects' {
-            sd."subjects/subject".each {
-                'subject'(sd."subjects/subject")
+            List subjects = sd."subjects/subject".tokenize(',')
+            subjects.each { val ->
+                'subject'(val)
             }
         }
     }
-    if (sd."contributors/contributor") {
+    if (sd."contributors/contributor/contributorName") {
         'contributors' {
             'contributor' {
-                sd."contributors/contributor".each {
-                    if(sd."contributors/contributor/contributorName") {
-                        ('contributorName'(sd."contributors/contributor/contributorName"))
-                    }
-                    if(sd."contributors/contributor/nameIdentifier") {
-                        ('nameIdentifier'(sd."contributors/contributor/nameIdentifier"))
-                    }
-                    if(sd."creators/creator/affiliation") {
-                        ('affiliation'(sd."contributors/contributor/affiliation"))
-                    }
+                ('contributorName'(sd."contributors/contributor/contributorName"))
+                if(sd."contributors/contributor/nameIdentifier") {
+                    ('nameIdentifier'(sd."contributors/contributor/nameIdentifier"))
+                }
+                if(sd."creators/creator/affiliation") {
+                    ('affiliation'(sd."contributors/contributor/affiliation"))
                 }
             }
         }
@@ -83,11 +80,26 @@ xmlDeclaration()
             'rights'(sd."rightsList/rights")
         }
     }
-
     if (sd.descriptions) {
         'descriptions' {
             sd.descriptions.each { de ->
                 'description'(de.description, descriptionType: "Other")
+            }
+        }
+    }
+    if (sd."fundingReferences/fundingReference/funderName") {
+        'fundingReferences' {
+            'fundingReference' {
+                'funderName'(sd."fundingReferences/fundingReference/funderName")
+                if (sd."fundingReferences/fundingReference/fundingIdentifier") {
+                    'fundingIdentifier'(sd."fundingReferences/fundingReference/fundingIdentifier")
+                }
+                if (sd."fundingReferences/fundingReference/awardNumber") {
+                    'awardNumber'(sd."fundingReferences/fundingReference/awardNumber")
+                }
+                if (sd."fundingReferences/fundingReference/awardTitle") {
+                    'awardTitle'(sd."fundingReferences/fundingReference/awardTitle")
+                }
             }
         }
     }

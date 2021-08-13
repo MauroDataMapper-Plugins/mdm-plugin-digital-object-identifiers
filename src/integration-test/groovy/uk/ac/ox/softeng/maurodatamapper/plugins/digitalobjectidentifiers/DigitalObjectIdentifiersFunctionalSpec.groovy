@@ -268,7 +268,36 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
 
         cleanup:
         cleanUpDataModel(id)
+    }
 
+    void 'test draft from new Doi endpoint end to end with full profile metadata'() {
+        given:
+        String id = buildFullTestDataModel()
+
+        when:
+        POST("dataModels/${id}/doi?submissionType=draft", [:])
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+        responseBody().id == id
+
+        when:
+        GET("dataModels/$id/profile/" +
+            "${digitalObjectIdentifiersProfileProviderService.namespace}/${digitalObjectIdentifiersProfileProviderService.name}")
+
+        then:
+        verifyResponse(HttpStatus.OK, response)
+
+        responseBody().id
+        responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'creators/creator/creatorName' }.currentValue ==
+        'Full Creator Anthony'
+        responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'titles/title' }.currentValue == 'Full DOI DataCite BDI title'
+        responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'publisher' }.currentValue == 'Full Publisher Anthony'
+        responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'publicationYear' }.currentValue == '2021'
+        responseBody().sections.get(0).fields.find { it.metadataPropertyName == 'suffix' }.currentValue
+
+        cleanup:
+        cleanUpDataModel(id)
     }
 
     String buildTestDataModel() {
@@ -319,6 +348,200 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
             namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
             key      : 'resourceType',
             value    : 'Dataset'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        id
+    }
+
+    String buildFullTestDataModel() {
+        POST("folders/$folderId/dataModels", [
+            label: 'Functional Test Model'
+        ]
+        )
+        verifyResponse(HttpStatus.CREATED, response)
+        String id = responseBody().id
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'identifiers/identifier',
+            value    : 'Test Identifier'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'creators/creator/creatorName',
+            value    : 'Full Creator Anthony'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'creators/creator/affiliation',
+            value    : 'Full Creator Affiliation'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        //did not populate
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'creators/creator/nameIdentifier',
+            value    : 'Full Creator Name ID'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'titles/title',
+            value    : 'Full DOI DataCite BDI title'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'publisher',
+            value    : 'Full Publisher Anthony'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'publicationYear',
+            value    : '2021'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'resourceType',
+            value    : 'Dataset'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'subjects/subject',
+            value    : ['Full Subject 1', 'Full Subject 2']
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        //Contributor Type "not supported in schema 4."
+//        //did not populate
+//        POST("dataModels/$id/metadata", [
+//            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+//            key      : 'contributors/contributor/contributorName',
+//            value    : 'Full Contributor Anthony'
+//        ])
+//        verifyResponse(HttpStatus.CREATED, response)
+//
+//        //did not populate
+//        POST("dataModels/$id/metadata", [
+//            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+//            key      : 'contributors/contributor/nameIdentifier',
+//            value    : 'Full Contributor Name ID'
+//        ])
+//        verifyResponse(HttpStatus.CREATED, response)
+//
+//        //did not populate
+//        POST("dataModels/$id/metadata", [
+//            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+//            key      : 'contributors/contributor/affiliation',
+//            value    : 'Full Contributor Affiliation'
+//        ])
+//        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'dates/date',
+            value    : '17/04/2021'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'language',
+            value    : 'English'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        //did not populate
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'alternateIdentifiers/alternateIdentifier',
+            value    : 'Full Alternate Identifier'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        //did not populate
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'relatedIdentifiers/relatedIdentifier',
+            value    : 'Full Related Identifier'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'sizes/size',
+            value    : 'Full Size'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'formats/format',
+            value    : 'Full Format'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'version',
+            value    : 'Full Version'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'rightsList/rights',
+            value    : 'Full Rights'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'description',
+            value    : 'Full Description Field 1'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'fundingReferences/fundingReference/funderName',
+            value    : 'Full Funder Name Anthony'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        //did not populate
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'fundingReferences/fundingReference/fundingIdentifier',
+            value    : 'Full Funding Identifier'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'fundingReferences/fundingReference/awardNumber',
+            value    : 'Full Award Number'
+        ])
+        verifyResponse(HttpStatus.CREATED, response)
+
+        POST("dataModels/$id/metadata", [
+            namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+            key      : 'fundingReferences/fundingReference/awardTitle',
+            value    : 'Full Award Title'
         ])
         verifyResponse(HttpStatus.CREATED, response)
 
