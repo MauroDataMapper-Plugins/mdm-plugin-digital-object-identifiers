@@ -17,7 +17,13 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile
 
+import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
+import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiPropertyService
 import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MetadataAware
+import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MultiFacetAware
+import uk.ac.ox.softeng.maurodatamapper.profile.domain.ProfileField
+import uk.ac.ox.softeng.maurodatamapper.profile.domain.ProfileSection
+import uk.ac.ox.softeng.maurodatamapper.profile.object.JsonProfile
 import uk.ac.ox.softeng.maurodatamapper.profile.provider.JsonProfileProviderService
 
 import grails.core.GrailsApplication
@@ -30,6 +36,8 @@ class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProvider
 
     @Autowired
     GrailsApplication grailsApplication
+
+    ApiPropertyService apiPropertyService
 
     @Override
     String getMetadataNamespace() {
@@ -48,13 +56,43 @@ class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProvider
 
     @Override
     String getJsonResourceFile() {
-        'DataCiteDigitalObjectIdentifiersSimpleProfile.json'
+        //TODO update to use the full profile which needs to be completed following overhaul of profiles to allow multiple sections
+        'DataCiteDigitalObjectIdentifiersProfile-4.4-partial.json'
     }
 
     @Override
     List<String> profileApplicableForDomains() {
         grailsApplication.getArtefacts(DomainClassArtefactHandler.TYPE)
-            .findAll { MetadataAware.isAssignableFrom(it.clazz) && !it.isAbstract()}
+            .findAll {MetadataAware.isAssignableFrom(it.clazz) && !it.isAbstract()}
             .collect {grailsClass -> grailsClass.getName()}
+    }
+
+    @Override
+    JsonProfile createProfileFromEntity(MultiFacetAware entity) {
+        JsonProfile profile = super.createProfileFromEntity(entity)
+        updateFixedFields(profile)
+    }
+
+    @Override
+    JsonProfile createCleanProfileFromProfile(JsonProfile submittedProfile) {
+        JsonProfile profile = super.createCleanProfileFromProfile(submittedProfile)
+        updateFixedFields(profile)
+    }
+
+    JsonProfile updateFixedFields(JsonProfile profile) {
+        // Make sure the prefix field is populated.
+        // The other fixed fields will be populated once submissions start to flow
+        ApiProperty prefixProperty = apiPropertyService.findByKey('prefix')
+        ProfileSection fixedSection = profile.sections.find {it.name == 'Predefined/Supplied Fields'}
+        ProfileField prefixField = fixedSection.fields.find {it.metadataPropertyName == 'prefix'}
+        if (!prefixField.currentValue) {
+            prefixField.currentValue = prefixProperty.value
+        }
+
+        fixedSection.fields.each {field ->
+            if(!field.currentValue) field.currentValue = ''
+        }
+
+        profile
     }
 }
