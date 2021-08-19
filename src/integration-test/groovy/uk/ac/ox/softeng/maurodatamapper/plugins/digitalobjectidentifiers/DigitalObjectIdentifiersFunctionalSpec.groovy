@@ -17,23 +17,17 @@
  */
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
-import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
-import uk.ac.ox.softeng.maurodatamapper.core.container.Classifier
+
 import uk.ac.ox.softeng.maurodatamapper.core.container.Folder
-import uk.ac.ox.softeng.maurodatamapper.core.facet.SemanticLink
-import uk.ac.ox.softeng.maurodatamapper.datamodel.DataModel
 import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile.DigitalObjectIdentifiersProfileProviderService
 import uk.ac.ox.softeng.maurodatamapper.test.functional.BaseFunctionalSpec
 
 import grails.gorm.transactions.Transactional
 import grails.testing.mixin.integration.Integration
-import grails.testing.spock.OnceBefore
 import groovy.util.logging.Slf4j
 import io.micronaut.http.HttpStatus
 import org.junit.Assert
 import spock.lang.Shared
-
-import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.FUNCTIONAL_TEST
 
 import static io.micronaut.http.HttpStatus.OK
 
@@ -45,30 +39,13 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
     DigitalObjectIdentifiersProfileProviderService digitalObjectIdentifiersProfileProviderService
 
     @Shared
-    String doiString
-
-    @Shared
-    UUID folderId
-
-    @OnceBefore
-    @Transactional
-    def checkAndSetupData() {
-        log.debug('Check and setup test data')
-        sessionFactory.currentSession.flush()
-        folderId = new Folder(label: 'Functional Test Folder', createdBy: FUNCTIONAL_TEST).save(flush: true).id
-        assert folderId
-        ApiProperty siteUrl = new ApiProperty(key: 'site.url', value: 'http://jenkins.cs.ox.ac.uk/mdm', createdBy: FUNCTIONAL_TEST)
-        checkAndSave(siteUrl)
-
-        doiString = '10.4124/kzn3hb2vh8.1'
-    }
+    String doiString= '10.4124/kzn3hb2vh8.1'
 
     @Transactional
-    def cleanupSpec() {
-        log.debug('CleanupSpec DataModelFunctionalSpec')
-        ApiProperty.findByKey('site.url').delete(flush: true)
-        cleanUpResources(DataModel, Folder, Classifier, SemanticLink)
+    UUID getFolderId(){
+        Folder.findByLabel('Functional Test Folder').id
     }
+
 
     @Override
     String getResourcePath() {
