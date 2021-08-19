@@ -180,7 +180,7 @@ class DigitalObjectIdentifiersService {
         Map<String, Object> responseBody = digitalObjectIdentifiersServerClient.sendMapToClient(simpleBody)
 
         updateFromResponse(responseBody, attributesBlock, multiFacetAware, user)
-        setDoiInformation(multiFacetAware, "${prefixProperty.value}/${attributesBlock.suffix}", DoiStatusEnum.DRAFT, user)
+        setDoiInformation(multiFacetAware, attributesBlock.identifier as String, DoiStatusEnum.DRAFT, user)
     }
 
     def submitAsDraft(DigitalObjectIdentifiersServerClient digitalObjectIdentifiersServerClient, Map attributesBlock, ApiProperty prefixProperty,
@@ -255,7 +255,7 @@ class DigitalObjectIdentifiersService {
     def updateFromResponse(Map<String, Object> responseBody, Map attributesBlock, MultiFacetAware multiFacetAware,
                            User user) {
 
-        if (!attributesBlock.suffix) {
+        if (attributesBlock.suffix != responseBody.data.attributes.suffix) {
             attributesBlock.suffix = responseBody.data.attributes.suffix
 
             Metadata suffixMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
@@ -266,7 +266,18 @@ class DigitalObjectIdentifiersService {
             multiFacetAware.addToMetadata(suffixMetadata)
             metadataService.save(suffixMetadata)
         }
-        if (!attributesBlock.identifier) {
+        if (attributesBlock.prefix != responseBody.data.attributes.prefix) {
+            attributesBlock.prefix = responseBody.data.attributes.prefix
+
+            Metadata prefixMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
+                                                   key: 'prefix',
+                                                   value: attributesBlock.prefix,
+                                                   createdBy: user.getEmailAddress(),
+                                                   multiFacetAwareItem: multiFacetAware)
+            multiFacetAware.addToMetadata(prefixMetadata)
+            metadataService.save(prefixMetadata)
+        }
+        if (attributesBlock.identifier != responseBody.data.attributes.doi) {
             attributesBlock.identifier = responseBody.data.attributes.doi
             Metadata doiMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
                                                 key: 'identifier',
@@ -276,7 +287,7 @@ class DigitalObjectIdentifiersService {
             multiFacetAware.addToMetadata(doiMetadata)
             metadataService.save(doiMetadata)
         }
-        if (responseBody.data.attributes.state) {
+        if (attributesBlock.status != responseBody.data.attributes.state) {
             attributesBlock.status = responseBody.data.attributes.state
             Metadata statusMetadata = new Metadata(namespace: digitalObjectIdentifiersProfileProviderService.metadataNamespace,
                                                    key: 'status',

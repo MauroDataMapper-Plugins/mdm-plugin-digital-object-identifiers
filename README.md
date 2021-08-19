@@ -42,3 +42,9 @@ grails {
     }
 }
 ```
+
+
+## DataCite Documentation
+
+* https://support.datacite.org/docs/api-create-dois
+* https://schema.datacite.org/
