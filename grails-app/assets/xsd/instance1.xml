@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ke:resource xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xmlns:ke="http://datacite.org/schema/kernel-4"
+ xsi:schemaLocation="http://datacite.org/schema/kernel-4 file:/Users/oliverfreeman/code/mauro_data_mapper_plugins/mdm-plugin-digital-object-identifiers/grails-app/assets/xsd/metadata-4.4.xsd">
+  <ke:identifier identifierType="identifierType0">identifier0</ke:identifier>
+  <ke:creators>
+    <ke:creator>
+      <ke:creatorName nameType="Organizational" xml:lang="en-US">creatorName0</ke:creatorName>
+      <ke:givenName>
+      </ke:givenName>
+      <ke:familyName>
+      </ke:familyName>
+      <ke:nameIdentifier>
+      </ke:nameIdentifier>
+      <ke:nameIdentifier>
+      </ke:nameIdentifier>
+      <ke:affiliation>
+      </ke:affiliation>
+      <ke:affiliation>
+      </ke:affiliation>
+    </ke:creator>
+    <ke:creator>
+      <ke:creatorName nameType="Organizational" xml:lang="en-US">creatorName1</ke:creatorName>
+      <ke:givenName>
+      </ke:givenName>
+      <ke:familyName>
+      </ke:familyName>
+      <ke:nameIdentifier>
+      </ke:nameIdentifier>
+      <ke:nameIdentifier>
+      </ke:nameIdentifier>
+      <ke:affiliation>
+      </ke:affiliation>
+      <ke:affiliation>
+      </ke:affiliation>
+    </ke:creator>
+  </ke:creators>
+  <ke:titles>
+    <ke:title titleType="AlternativeTitle" xml:lang="en-US">title0</ke:title>
+    <ke:title titleType="AlternativeTitle" xml:lang="en-US">title1</ke:title>
+  </ke:titles>
+  <ke:publisher xml:lang="en-US">publisher0</ke:publisher>
+  <ke:publicationYear>0000</ke:publicationYear>
+  <ke:resourceType resourceTypeGeneral="Audiovisual">resourceType0</ke:resourceType>
+  <ke:subjects>
+    <ke:subject subjectScheme="subjectScheme0" schemeURI="http://www.oxygenxml.com/" valueURI="http://www.oxygenxml.com/" classificationCode="http://www.oxygenxml.com/"
+       xml:lang="en-US">subject0</ke:subject>
+    <ke:subject subjectScheme="subjectScheme1" schemeURI="http://www.oxygenxml.com/" valueURI="http://www.oxygenxml.com/" classificationCode="http://www.oxygenxml.com/"
+       xml:lang="en-US">subject1</ke:subject>
+  </ke:subjects>
+  <ke:contributors>
+    <ke:contributor contributorType="ContactPerson">
+      <ke:contributorName nameType="Organizational" xml:lang="en-US">contributorName0</ke:contributorName>
+      <ke:givenName>
+      </ke:givenName>
+      <ke:familyName>
+      </ke:familyName>
+      <ke:nameIdentifier>
+      </ke:nameIdentifier>
+      <ke:nameIdentifier>
+      </ke:nameIdentifier>
+      <ke:affiliation>
+      </ke:affiliation>
+      <ke:affiliation>
+      </ke:affiliation>
+    </ke:contributor>
+    <ke:contributor contributorType="ContactPerson">
+      <ke:contributorName nameType="Organizational" xml:lang="en-US">contributorName1</ke:contributorName>
+      <ke:givenName>
+      </ke:givenName>
+      <ke:familyName>
+      </ke:familyName>
+      <ke:nameIdentifier>
+      </ke:nameIdentifier>
+      <ke:nameIdentifier>
+      </ke:nameIdentifier>
+      <ke:affiliation>
+      </ke:affiliation>
+      <ke:affiliation>
+      </ke:affiliation>
+    </ke:contributor>
+  </ke:contributors>
+  <ke:dates>
+    <ke:date dateType="Accepted" dateInformation="dateInformation0">date0</ke:date>
+    <ke:date dateType="Accepted" dateInformation="dateInformation1">date1</ke:date>
+  </ke:dates>
+  <ke:language>en-US</ke:language>
+  <ke:alternateIdentifiers>
+    <ke:alternateIdentifier alternateIdentifierType="alternateIdentifierType0">alternateIdentifier0</ke:alternateIdentifier>
+    <ke:alternateIdentifier alternateIdentifierType="alternateIdentifierType1">alternateIdentifier1</ke:alternateIdentifier>
+  </ke:alternateIdentifiers>
+  <ke:relatedIdentifiers>
+    <ke:relatedIdentifier resourceTypeGeneral="Audiovisual" relatedIdentifierType="ARK" relationType="IsCitedBy" relatedMetadataScheme="relatedMetadataScheme0" schemeURI="http://www.oxygenxml.com/"
+       schemeType="schemeType0">relatedIdentifier0</ke:relatedIdentifier>
+    <ke:relatedIdentifier resourceTypeGeneral="Audiovisual" relatedIdentifierType="ARK" relationType="IsCitedBy" relatedMetadataScheme="relatedMetadataScheme1" schemeURI="http://www.oxygenxml.com/"
+       schemeType="schemeType1">relatedIdentifier1</ke:relatedIdentifier>
+  </ke:relatedIdentifiers>
+  <ke:sizes>
+    <ke:size>size0</ke:size>
+    <ke:size>size1</ke:size>
+  </ke:sizes>
+  <ke:formats>
+    <ke:format>format0</ke:format>
+    <ke:format>format1</ke:format>
+  </ke:formats>
+  <ke:version>version0</ke:version>
+  <ke:rightsList>
+    <ke:rights rightsURI="http://www.oxygenxml.com/" rightsIdentifier="rightsIdentifier0" rightsIdentifierScheme="rightsIdentifierScheme0" schemeURI="http://www.oxygenxml.com/"
+       xml:lang="en-US">rights0</ke:rights>
+    <ke:rights rightsURI="http://www.oxygenxml.com/" rightsIdentifier="rightsIdentifier1" rightsIdentifierScheme="rightsIdentifierScheme1" schemeURI="http://www.oxygenxml.com/"
+       xml:lang="en-US">rights1</ke:rights>
+  </ke:rightsList>
+  <ke:descriptions>
+    <ke:description descriptionType="Abstract" xml:lang="en-US">
+      <ke:br/>
+      <ke:br/>
+    </ke:description>
+    <ke:description descriptionType="Abstract" xml:lang="en-US">
+      <ke:br/>
+      <ke:br/>
+    </ke:description>
+  </ke:descriptions>
+  <ke:geoLocations>
+    <ke:geoLocation>
+      <ke:geoLocationBox>
+        <ke:westBoundLongitude>0</ke:westBoundLongitude>
+        <ke:eastBoundLongitude>0</ke:eastBoundLongitude>
+        <ke:southBoundLatitude>0</ke:southBoundLatitude>
+        <ke:northBoundLatitude>0</ke:northBoundLatitude>
+      </ke:geoLocationBox>
+      <ke:geoLocationPoint>
+        <ke:pointLongitude>0</ke:pointLongitude>
+        <ke:pointLatitude>0</ke:pointLatitude>
+      </ke:geoLocationPoint>
+    </ke:geoLocation>
+    <ke:geoLocation>
+      <ke:geoLocationBox>
+        <ke:westBoundLongitude>0</ke:westBoundLongitude>
+        <ke:eastBoundLongitude>0</ke:eastBoundLongitude>
+        <ke:southBoundLatitude>0</ke:southBoundLatitude>
+        <ke:northBoundLatitude>0</ke:northBoundLatitude>
+      </ke:geoLocationBox>
+      <ke:geoLocationBox>
+        <ke:westBoundLongitude>0</ke:westBoundLongitude>
+        <ke:eastBoundLongitude>0</ke:eastBoundLongitude>
+        <ke:southBoundLatitude>0</ke:southBoundLatitude>
+        <ke:northBoundLatitude>0</ke:northBoundLatitude>
+      </ke:geoLocationBox>
+    </ke:geoLocation>
+  </ke:geoLocations>
+  <ke:fundingReferences>
+    <ke:fundingReference>
+      <ke:funderName>funderName0</ke:funderName>
+      <ke:funderIdentifier funderIdentifierType="ISNI" schemeURI="http://www.oxygenxml.com/">funderIdentifier0</ke:funderIdentifier>
+      <ke:awardNumber awardURI="http://www.oxygenxml.com/">awardNumber0</ke:awardNumber>
+      <ke:awardTitle>
+      </ke:awardTitle>
+    </ke:fundingReference>
+    <ke:fundingReference>
+      <ke:funderName>funderName1</ke:funderName>
+      <ke:funderIdentifier funderIdentifierType="ISNI" schemeURI="http://www.oxygenxml.com/">funderIdentifier1</ke:funderIdentifier>
+      <ke:awardNumber awardURI="http://www.oxygenxml.com/">awardNumber1</ke:awardNumber>
+      <ke:awardTitle>
+      </ke:awardTitle>
+    </ke:fundingReference>
+  </ke:fundingReferences>
+  <ke:relatedItems>
+    <ke:relatedItem relatedItemType="Audiovisual" relationType="IsCitedBy">
+      <ke:relatedItemIdentifier relatedItemIdentifierType="ARK" relatedMetadataScheme="relatedMetadataScheme2" schemeURI="http://www.oxygenxml.com/" schemeType="schemeType2">relatedItemIdentifier0</ke:relatedItemIdentifier>
+      <ke:creators>
+        <ke:creator>
+          <ke:creatorName nameType="Organizational" xml:lang="en-US">creatorName2</ke:creatorName>
+          <ke:givenName>
+          </ke:givenName>
+          <ke:familyName>
+          </ke:familyName>
+        </ke:creator>
+        <ke:creator>
+          <ke:creatorName nameType="Organizational" xml:lang="en-US">creatorName3</ke:creatorName>
+          <ke:givenName>
+          </ke:givenName>
+          <ke:familyName>
+          </ke:familyName>
+        </ke:creator>
+      </ke:creators>
+      <ke:titles>
+        <ke:title titleType="AlternativeTitle" xml:lang="en-US">title2</ke:title>
+        <ke:title titleType="AlternativeTitle" xml:lang="en-US">title3</ke:title>
+      </ke:titles>
+      <ke:publicationYear>0000</ke:publicationYear>
+      <ke:volume>
+      </ke:volume>
+      <ke:issue>
+      </ke:issue>
+      <ke:number numberType="Article">number0</ke:number>
+      <ke:firstPage>
+      </ke:firstPage>
+      <ke:lastPage>
+      </ke:lastPage>
+      <ke:publisher>
+      </ke:publisher>
+      <ke:edition>
+      </ke:edition>
+      <ke:contributors>
+        <ke:contributor contributorType="ContactPerson">
+          <ke:contributorName nameType="Organizational" xml:lang="en-US">contributorName2</ke:contributorName>
+          <ke:givenName>
+          </ke:givenName>
+          <ke:familyName>
+          </ke:familyName>
+        </ke:contributor>
+        <ke:contributor contributorType="ContactPerson">
+          <ke:contributorName nameType="Organizational" xml:lang="en-US">contributorName3</ke:contributorName>
+          <ke:givenName>
+          </ke:givenName>
+          <ke:familyName>
+          </ke:familyName>
+        </ke:contributor>
+      </ke:contributors>
+    </ke:relatedItem>
+    <ke:relatedItem relatedItemType="Audiovisual" relationType="IsCitedBy">
+      <ke:relatedItemIdentifier relatedItemIdentifierType="ARK" relatedMetadataScheme="relatedMetadataScheme3" schemeURI="http://www.oxygenxml.com/" schemeType="schemeType3">relatedItemIdentifier1</ke:relatedItemIdentifier>
+      <ke:creators>
+        <ke:creator>
+          <ke:creatorName nameType="Organizational" xml:lang="en-US">creatorName4</ke:creatorName>
+          <ke:givenName>
+          </ke:givenName>
+          <ke:familyName>
+          </ke:familyName>
+        </ke:creator>
+        <ke:creator>
+          <ke:creatorName nameType="Organizational" xml:lang="en-US">creatorName5</ke:creatorName>
+          <ke:givenName>
+          </ke:givenName>
+          <ke:familyName>
+          </ke:familyName>
+        </ke:creator>
+      </ke:creators>
+      <ke:titles>
+        <ke:title titleType="AlternativeTitle" xml:lang="en-US">title4</ke:title>
+        <ke:title titleType="AlternativeTitle" xml:lang="en-US">title5</ke:title>
+      </ke:titles>
+      <ke:publicationYear>0000</ke:publicationYear>
+      <ke:volume>
+      </ke:volume>
+      <ke:issue>
+      </ke:issue>
+      <ke:number numberType="Article">number1</ke:number>
+      <ke:firstPage>
+      </ke:firstPage>
+      <ke:lastPage>
+      </ke:lastPage>
+      <ke:publisher>
+      </ke:publisher>
+      <ke:edition>
+      </ke:edition>
+      <ke:contributors>
+        <ke:contributor contributorType="ContactPerson">
+          <ke:contributorName nameType="Organizational" xml:lang="en-US">contributorName4</ke:contributorName>
+          <ke:givenName>
+          </ke:givenName>
+          <ke:familyName>
+          </ke:familyName>
+        </ke:contributor>
+        <ke:contributor contributorType="ContactPerson">
+          <ke:contributorName nameType="Organizational" xml:lang="en-US">contributorName5</ke:contributorName>
+          <ke:givenName>
+          </ke:givenName>
+          <ke:familyName>
+          </ke:familyName>
+        </ke:contributor>
+      </ke:contributors>
+    </ke:relatedItem>
+  </ke:relatedItems>
+</ke:resource>
