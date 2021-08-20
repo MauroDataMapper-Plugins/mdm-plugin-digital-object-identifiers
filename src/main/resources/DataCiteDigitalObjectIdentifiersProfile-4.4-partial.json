@@ -150,7 +150,7 @@
       {
         "fieldName": "Resource Type",
         "metadataPropertyName": "resourceType",
-        "description": "Year when the data is made publicly available. If an embargo period has been in effect, use the date when the embargo period ends.",
+        "description": "The type of a resource",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "Enumeration",
