@@ -61,6 +61,11 @@ class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProvider
     }
 
     @Override
+    Boolean canBeEditedAfterFinalisation() {
+        true
+    }
+
+    @Override
     List<String> profileApplicableForDomains() {
         grailsApplication.getArtefacts(DomainClassArtefactHandler.TYPE)
             .findAll {MetadataAware.isAssignableFrom(it.clazz) && !it.isAbstract()}
