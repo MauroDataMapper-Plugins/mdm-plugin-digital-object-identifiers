@@ -39,10 +39,10 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
     DigitalObjectIdentifiersProfileProviderService digitalObjectIdentifiersProfileProviderService
 
     @Shared
-    String doiString= '10.4124/kzn3hb2vh8.1'
+    String doiString = '10.4124/kzn3hb2vh8.1'
 
     @Transactional
-    UUID getFolderId(){
+    UUID getFolderId() {
         Folder.findByLabel('Functional Test Folder').id
     }
 
@@ -62,7 +62,7 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         verifyResponse(OK, response)
-        assert responseBody().id == id
+        responseBody().id == id
 
         cleanup:
         DELETE("dataModels/$id?permanent=true")
@@ -79,8 +79,8 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
 
         then:
         verifyResponse(OK, response)
-        assert responseBody().status == 'draft'
-        assert responseBody().identifier == doiString
+        responseBody().status == 'draft'
+        responseBody().identifier == doiString
 
         cleanup:
         DELETE("dataModels/$id?permanent=true")
@@ -107,7 +107,15 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         then:
         verifyResponse(OK, response)
         responseBody().id == id
-        verifyProfileAfterSubmission('draft')
+        String identifier = verifyProfileAfterSubmission('draft', 'draft')
+
+        when:
+        GET("dataModels/$id/doi")
+
+        then:
+        verifyResponse(OK, response)
+        responseBody().status == 'draft'
+        responseBody().identifier == identifier
 
         cleanup:
         cleanUpDataModel(id)
@@ -131,7 +139,15 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         then:
         verifyResponse(OK, response)
         responseBody().id == id
-        verifyProfileAfterSubmission('findable')
+        String identifier =   verifyProfileAfterSubmission('final', 'findable')
+
+        when:
+        GET("dataModels/$id/doi")
+
+        then:
+        verifyResponse(OK, response)
+        responseBody().status == 'final'
+        responseBody().identifier == identifier
 
         cleanup:
         cleanUpDataModel(id)
@@ -157,7 +173,15 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         then:
         verifyResponse(OK, response)
         responseBody().id == id
-        verifyProfileAfterSubmission('findable')
+        String identifier =    verifyProfileAfterSubmission('final', 'findable')
+
+        when:
+        GET("dataModels/$id/doi")
+
+        then:
+        verifyResponse(OK, response)
+        responseBody().status == 'final'
+        responseBody().identifier == identifier
 
         cleanup:
         cleanUpDataModel(id)
@@ -186,8 +210,15 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         then:
         verifyResponse(OK, response)
         responseBody().id == id
-        verifyProfileAfterSubmission('registered')
+        String identifier =   verifyProfileAfterSubmission('retired', 'registered')
 
+        when:
+        GET("dataModels/$id/doi")
+
+        then:
+        verifyResponse(OK, response)
+        responseBody().status == 'retired'
+        responseBody().identifier == identifier
 
         cleanup:
         cleanUpDataModel(id)
@@ -214,7 +245,15 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         then:
         verifyResponse(OK, response)
         responseBody().id == id
-        verifyProfileAfterSubmission('registered')
+        String identifier =    verifyProfileAfterSubmission('retired', 'registered')
+
+        when:
+        GET("dataModels/$id/doi")
+
+        then:
+        verifyResponse(OK, response)
+        responseBody().status == 'retired'
+        responseBody().identifier == identifier
 
         cleanup:
         cleanUpDataModel(id)
@@ -239,16 +278,25 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         verifyResponse(OK, response)
 
         responseBody().id == id
-        verifyProfileAfterSubmission('draft', 'An interesting description')
+        String identifier =   verifyProfileAfterSubmission('draft', 'draft', 'An interesting description')
+
+        when:
+        GET("dataModels/$id/doi")
+
+        then:
+        verifyResponse(OK, response)
+        responseBody().status == 'draft'
+        responseBody().identifier == identifier
 
         cleanup:
         cleanUpDataModel(id)
     }
 
-    void verifyProfileAfterSubmission(String expectedStatus, String expectedDescription = '') {
+    String verifyProfileAfterSubmission(String expectedStatus, String expectedState, String expectedDescription = '') {
         verifyFieldData 'Predefined/Supplied Fields', 'prefix', '10.80079'
         verifyFieldData 'Predefined/Supplied Fields', 'suffix', null, false
         verifyFieldData 'Predefined/Supplied Fields', 'status', expectedStatus
+        verifyFieldData 'Predefined/Supplied Fields', 'state', expectedState
         verifyFieldData 'Predefined/Supplied Fields', 'titles/mainTitle', 'Functional Test Model'
         verifyFieldData 'Predefined/Supplied Fields', 'descriptions/mainDescription', expectedDescription
         verifyFieldData 'Predefined/Supplied Fields', 'version', '1.0.0'
@@ -259,6 +307,8 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
 
         String suffix = responseBody().sections.find {it.name == 'Predefined/Supplied Fields'}.fields.find {it.metadataPropertyName == 'suffix'}.currentValue
         verifyFieldData 'Predefined/Supplied Fields', 'identifier', "10.80079/$suffix"
+
+        "10.80079/$suffix"
     }
 
     void verifyFieldData(String section, String field, String expectedValue, boolean valueKnown = true) {
@@ -328,7 +378,7 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
 
     String buildFullTestDataModel() {
         POST("folders/$folderId/dataModels", [
-            label: 'Functional Test Model',
+            label      : 'Functional Test Model',
             description: 'An interesting description'
         ]
         )
@@ -349,23 +399,23 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
                         ],
                         [
                             metadataPropertyName: 'creators/creator/creatorNameType',
-                            currentValue: 'Personal'
+                            currentValue        : 'Personal'
                         ],
                         [
                             metadataPropertyName: 'creators/creator/givenName',
-                            currentValue: 'a given name'
+                            currentValue        : 'a given name'
                         ],
                         [
                             metadataPropertyName: 'creators/creator/familyName',
-                            currentValue: 'a family name'
+                            currentValue        : 'a family name'
                         ],
                         [
                             metadataPropertyName: 'creators/creator/nameIdentifier',
-                            currentValue: 'a name identifier'
+                            currentValue        : 'a name identifier'
                         ],
                         [
                             metadataPropertyName: 'creators/creator/affiliation',
-                            currentValue: 'testing'
+                            currentValue        : 'testing'
                         ],
                     ],
                 ],
@@ -421,27 +471,27 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
                         ],
                         [
                             metadataPropertyName: 'contributors/contributor/contributorNameType',
-                            currentValue: 'Personal'
+                            currentValue        : 'Personal'
                         ],
                         [
                             metadataPropertyName: 'contributors/contributor/contributorType',
-                            currentValue: 'DataCollector'
+                            currentValue        : 'DataCollector'
                         ],
                         [
                             metadataPropertyName: 'contributors/contributor/givenName',
-                            currentValue: 'a given name'
+                            currentValue        : 'a given name'
                         ],
                         [
                             metadataPropertyName: 'contributors/contributor/familyName',
-                            currentValue: 'a family name'
+                            currentValue        : 'a family name'
                         ],
                         [
                             metadataPropertyName: 'contributors/contributor/nameIdentifier',
-                            currentValue: 'a name identifier'
+                            currentValue        : 'a name identifier'
                         ],
                         [
                             metadataPropertyName: 'contributors/contributor/affiliation',
-                            currentValue: 'testing'
+                            currentValue        : 'testing'
                         ],
                     ],
                 ],
@@ -474,14 +524,14 @@ class DigitalObjectIdentifiersFunctionalSpec extends BaseFunctionalSpec {
         String id = responseBody().id
 
         POST("dataModels/$id/metadata", [
-            namespace: digitalObjectIdentifiersService.buildNamespaceInternal(),
+            namespace: digitalObjectIdentifiersService.metadataNamespace,
             key      : DigitalObjectIdentifiersService.IDENTIFIER_KEY,
             value    : doiString
         ])
         verifyResponse(HttpStatus.CREATED, response)
 
         POST("dataModels/$id/metadata", [
-            namespace: digitalObjectIdentifiersService.buildNamespaceInternal(),
+            namespace: digitalObjectIdentifiersService.metadataNamespace,
             key      : digitalObjectIdentifiersService.STATUS_KEY,
             value    : DoiStatusEnum.DRAFT.toString()
         ])

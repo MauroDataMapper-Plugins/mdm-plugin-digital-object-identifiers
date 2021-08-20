@@ -33,7 +33,16 @@
       {
         "fieldName": "Status",
         "metadataPropertyName": "status",
-        "description": "Status of DOI: draft, findable, retired.",
+        "description": "Status of DOI: draft, final, retired, not submitted.",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "String",
+        "uneditable": true
+      },
+      {
+        "fieldName": "State",
+        "metadataPropertyName": "state",
+        "description": "State of DOI inside DataCite: draft, findable, registered (Registered indicates a retired DOI).",
         "minMultiplicity": 1,
         "maxMultiplicity": 1,
         "dataType": "String",

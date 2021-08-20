@@ -307,7 +307,7 @@ class DigitalObjectIdentifiersProfileFunctionalSpec extends BaseFunctionalSpec {
         verifyFieldData 'Predefined/Supplied Fields', 'prefix', '10.80079'
         verifyFieldData 'Predefined/Supplied Fields', 'suffix', ''
         verifyFieldData 'Predefined/Supplied Fields', 'identifier', ''
-        verifyFieldData 'Predefined/Supplied Fields', 'status', ''
+        verifyFieldData 'Predefined/Supplied Fields', 'status', 'not submitted'
         verifyFieldData 'Predefined/Supplied Fields', 'titles/mainTitle', 'Functional Test Model'
         verifyFieldData 'Predefined/Supplied Fields', 'descriptions/mainDescription', expectedDescription
         verifyFieldData 'Predefined/Supplied Fields', 'version', '1.0.0'
