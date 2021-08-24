@@ -54,11 +54,11 @@ class DigitalObjectIdentifiersIntegrationSpec extends BaseIntegrationSpec {
         doiString = '10.4124/kzn3hb2vh8.1'
 
         simpleDataModel.addToMetadata(new Metadata(
-            namespace: digitalObjectIdentifiersService.buildNamespaceInternal(),
+            namespace: digitalObjectIdentifiersService.metadataNamespace,
             key: DigitalObjectIdentifiersService.IDENTIFIER_KEY,
             value: doiString, createdBy: StandardEmailAddress.INTEGRATION_TEST))
         simpleDataModel.addToMetadata(new Metadata(
-            namespace: digitalObjectIdentifiersService.buildNamespaceInternal(),
+            namespace: digitalObjectIdentifiersService.metadataNamespace,
             key: DigitalObjectIdentifiersService.STATUS_KEY,
             value: DoiStatusEnum.DRAFT, createdBy: StandardEmailAddress.INTEGRATION_TEST))
 
@@ -74,21 +74,6 @@ class DigitalObjectIdentifiersIntegrationSpec extends BaseIntegrationSpec {
 
         then: "the dataModel containing the doi MetaData should be returned"
         multiFacetAware.id == simpleDataModel.id
-    }
-
-    void 'DS02 Updating the status of a DOI link'() {
-        given: "A Stored dataModel with doiMetadata"
-        setupData()
-
-        when: 'the call is made to change the status'
-        digitalObjectIdentifiersService.updateDoiStatus(doiString, DoiStatusEnum.FINAL)
-        then: 'the model should have an updated status'
-        digitalObjectIdentifiersService.getDoiStatus(doiString) == DoiStatusEnum.FINAL
-
-        when: 'the call is made to change the status to retired'
-        digitalObjectIdentifiersService.retireDoi(doiString)
-        then: 'the model should have an updated status of "retired"'
-        digitalObjectIdentifiersService.getDoiStatus(doiString) == DoiStatusEnum.RETIRED
     }
 }
 

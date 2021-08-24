@@ -18,11 +18,10 @@
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
 enum DoiStatusEnum {
-    DRAFT("draft"),
-    FINAL("final"),
-    RETIRED("retired"),
-    NOT_APPLICABLE("not_applicable"),
-    REGISTERED('registered')
+    DRAFT('draft'),
+    FINAL('final'),
+    RETIRED('retired'),
+    NOT_SUBMITTED('not submitted')
 
     private final String key
 

@@ -1,0 +1,353 @@
+[
+  {
+    "sectionName": "Predefined/Supplied Fields",
+    "sectionDescription": "Fixed fields which cannot be changed.",
+    "fields": [
+      {
+        "fieldName": "Identifier",
+        "metadataPropertyName": "identifier",
+        "description": "A persistent identifier that identifies a resource. This will be filled in by the API upon submission",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "String",
+        "uneditable": true
+      },
+      {
+        "fieldName": "Prefix",
+        "metadataPropertyName": "prefix",
+        "description": "DOI prefix. The first part of the identifier",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "String",
+        "uneditable": true
+      },
+      {
+        "fieldName": "Suffix",
+        "metadataPropertyName": "suffix",
+        "description": "DOI suffix. The last part of the identifier",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "String",
+        "uneditable": true
+      },
+      {
+        "fieldName": "Status",
+        "metadataPropertyName": "status",
+        "description": "Status of DOI: draft, final, retired, not submitted.",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "String",
+        "uneditable": true
+      },
+      {
+        "fieldName": "State",
+        "metadataPropertyName": "state",
+        "description": "State of DOI inside DataCite: draft, findable, registered (Registered indicates a retired DOI).",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "String",
+        "uneditable": true
+      },
+      {
+        "fieldName": "Main Title",
+        "metadataPropertyName": "titles/mainTitle",
+        "description": "The main title by which the resource is known, derived from the label field of the resource.",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "Text",
+        "uneditable": true,
+        "derived": true,
+        "derivedFrom": "label"
+      },
+      {
+        "fieldName": "Main Description",
+        "metadataPropertyName": "descriptions/mainDescription",
+        "description": "The main description for the resource, derived from the description field of the resource.",
+        "minMultiplicity": 0,
+        "maxMultiplicity": -1,
+        "dataType": "Text",
+        "uneditable": true,
+        "derived": true,
+        "derivedFrom": "description"
+      },
+      {
+        "fieldName": "Version",
+        "metadataPropertyName": "version",
+        "description": "Version number of the resource. If the primary resource has changed the version number increases. Register a new identifier for a major version change. Individual stewards need to determine which are major vs. minor versions. May be used in conjunction with properties 11 and 12 (AlternateIdentifier and RelatedIdentifier) to indicate various information updates. May be used in conjunction with property 17 (Description) to indicate the nature and file/record range of version.",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String",
+        "derived": true,
+        "derivedFrom": "modelVersion"
+      }
+    ]
+  },
+  {
+    "sectionName": "Primary Creator",
+    "sectionDescription": "Resource Creator. This section will be capable of accepting multiples in the future, however at the moment it only handles a single entry.",
+    "fields": [
+      {
+        "fieldName": "Name",
+        "metadataPropertyName": "creators/creator/creatorName",
+        "description": "The main researchers involved working on the data, or the authors of the publication in priority order. May be a corporate/institutional or personal name.",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Name Type",
+        "metadataPropertyName": "creators/creator/creatorNameType",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "Enumeration",
+        "allowedValues": [
+          "Organizational",
+          "Personal"
+        ]
+      },
+      {
+        "fieldName": "Given Name",
+        "metadataPropertyName": "creators/creator/givenName",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Family Name",
+        "metadataPropertyName": "creators/creator/familyName",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Identifier",
+        "metadataPropertyName": "creators/creator/nameIdentifier",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Affiliation",
+        "metadataPropertyName": "creators/creator/affiliation",
+        "description": "Affiliation of creator, company or institution they represent",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      }
+    ]
+  },
+  {
+    "sectionName": "Additional Mandatory Fields",
+    "fields": [
+      {
+        "fieldName": "Publisher",
+        "metadataPropertyName": "publisher",
+        "description": "The name of the entity that holds, archives, publishes prints, distributes, releases, issues, or produces the resource. This property will be used to formulate the citation, so consider the prominence of the role. For software, use Publisher for the code repository. If there is an entity other than a code repository, that 'holds, archives, publishes, prints, distributes, releases, issues, or produces' the code, use the property Contributor/contributorType/hostingInstitution for the code repository.",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Publication Year",
+        "metadataPropertyName": "publicationYear",
+        "description": "The year when the data was or will be made publicly available. If an embargo period has been in effect, use the date when the embargo period ends.",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "Int",
+        "regularExpression": "\\d{4}"
+      },
+      {
+        "fieldName": "Resource Type",
+        "metadataPropertyName": "resourceType",
+        "description": "The type of a resource",
+        "minMultiplicity": 1,
+        "maxMultiplicity": 1,
+        "dataType": "Enumeration",
+        "allowedValues": [
+          "Audiovisual",
+          "Book",
+          "BookChapter",
+          "Collection",
+          "ComputationalNotebook",
+          "ConferencePaper",
+          "ConferenceProceeding",
+          "DataPaper",
+          "Dataset",
+          "Dissertation",
+          "Event",
+          "Image",
+          "InteractiveResource",
+          "Journal",
+          "JournalArticle",
+          "Model",
+          "OutputManagementPlan",
+          "PeerReview",
+          "PhysicalObject",
+          "Preprint",
+          "Report",
+          "Service",
+          "Software",
+          "Sound",
+          "Standard",
+          "Text",
+          "Workflow",
+          "Other"
+        ]
+      }
+    ]
+  },
+  {
+    "sectionName": "Additional Optional Title Section",
+    "sectionDescription": "This section will be capable of accepting multiples in the future, however at the moment it only handles a single entry.",
+    "fields": [
+      {
+        "fieldName": "Title",
+        "metadataPropertyName": "titles/title",
+        "description": "A name or title by which a resource is known.",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Title Type",
+        "metadataPropertyName": "titles/titleType",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "Enumeration",
+        "allowedValues": [
+          "AlternativeTitle",
+          "Subtitle",
+          "TranslatedTitle",
+          "Other"
+        ]
+      }
+    ]
+  },
+  {
+    "sectionName": "Additional Optional Description Section",
+    "sectionDescription": "This section will be capable of accepting multiples in the future, however at the moment it only handles a single entry.",
+    "fields": [
+      {
+        "fieldName": "Description",
+        "metadataPropertyName": "descriptions/description",
+        "description": "All additional information that does not fit in any of the other categories. May be used for technical information.",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "Text"
+      },
+      {
+        "fieldName": "Description Type",
+        "metadataPropertyName": "descriptions/descriptionType",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "Enumeration",
+        "allowedValues": [
+         "Abstract",
+         "Methods",
+         "SeriesInformation",
+         "TableOfContents",
+         "TechnicalInfo",
+         "Other"
+        ]
+      }
+    ]
+  },
+  {
+    "sectionName": "Primary Contributor",
+    "sectionDescription": "Resource Contributor. This section will be capable of accepting multiples in the future, however at the moment it only handles a single entry.",
+    "fields": [
+      {
+        "fieldName": "Name",
+        "metadataPropertyName": "contributors/contributor/contributorName",
+        "description": "The institution or person responsible for collecting, creating, or otherwise contributing to the development of the dataset.",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Name Type",
+        "metadataPropertyName": "contributors/contributor/contributorNameType",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "Enumeration",
+        "allowedValues": [
+          "Organizational",
+          "Personal"
+        ]
+      },
+      {
+        "fieldName": "Contributor Type",
+        "metadataPropertyName": "contributors/contributor/contributorType",
+        "description": "Mandatory if the contributor name is provided.",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "Enumeration",
+        "allowedValues": [
+          "ContactPerson",
+          "DataCollector",
+          "DataCurator",
+          "DataManager",
+          "Distributor",
+          "Editor",
+          "HostingInstitution",
+          "Other",
+          "Producer",
+          "ProjectLeader",
+          "ProjectManager",
+          "ProjectMember",
+          "RegistrationAgency",
+          "RegistrationAuthority",
+          "RelatedPerson",
+          "ResearchGroup",
+          "RightsHolder",
+          "Researcher",
+          "Sponsor",
+          "Supervisor",
+          "WorkPackageLeader"
+        ]
+      },
+      {
+        "fieldName": "Given Name",
+        "metadataPropertyName": "contributors/contributor/givenName",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Family Name",
+        "metadataPropertyName": "contributors/contributor/familyName",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Identifier",
+        "metadataPropertyName": "contributors/contributor/nameIdentifier",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      },
+      {
+        "fieldName": "Affiliation",
+        "metadataPropertyName": "contributors/contributor/affiliation",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      }
+    ]
+  },
+  {
+    "sectionName": "Additional Optional Fields",
+    "sectionDescription": "Optional metadata fields for DOI profiles.",
+    "fields": [
+      {
+        "fieldName": "Language",
+        "metadataPropertyName": "language",
+        "description": "Primary language of the resource. Allowed values are taken from  IETF BCP 47, ISO 639-1 language codes. For English, use 'en'.",
+        "minMultiplicity": 0,
+        "maxMultiplicity": 1,
+        "dataType": "String"
+      }
+    ]
+  }
+]

@@ -18,6 +18,7 @@
 package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
 import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
+import uk.ac.ox.softeng.maurodatamapper.core.container.Folder
 import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile.DigitalObjectIdentifiersProfileProviderService
 import uk.ac.ox.softeng.maurodatamapper.util.GormUtils
 
@@ -25,6 +26,7 @@ import grails.core.GrailsApplication
 import org.springframework.context.MessageSource
 
 import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.ADMIN
+import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.getFUNCTIONAL_TEST
 
 /*
  * Copyright 2020-2021 University of Oxford and Health and Social Care Information Centre, also known as NHS Digital
@@ -74,6 +76,18 @@ class BootStrap {
 
             // Dont override already loaded values
             ApiProperty.saveAll(loaded.findAll {!(it.key in existingKeys)})
+        }
+
+        environments {
+            test {
+                ApiProperty.withNewTransaction {
+                    new ApiProperty(key: 'site.url', value: 'http://jenkins.cs.ox.ac.uk/mdm', createdBy: FUNCTIONAL_TEST).save(flush: true)
+                }
+                Folder.withNewTransaction{
+                    new Folder(label: 'Functional Test Folder', createdBy: FUNCTIONAL_TEST).save(flush: true).save(flush:true)
+                }
+
+            }
         }
     }
 
