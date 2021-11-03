@@ -74,32 +74,13 @@ class DigitalObjectIdentifiersProfileProviderService extends JsonProfileProvider
     }
 
     @Override
-    JsonProfile createProfileFromEntity(MultiFacetAware entity) {
-        JsonProfile profile = super.createProfileFromEntity(entity)
-        updateFixedFields(profile)
-    }
-
-    @Override
-    JsonProfile createCleanProfileFromProfile(JsonProfile submittedProfile) {
-        JsonProfile profile = super.createCleanProfileFromProfile(submittedProfile)
-        updateFixedFields(profile)
-    }
-
-    JsonProfile updateFixedFields(JsonProfile profile) {
+    JsonProfile updateUneditableFields(JsonProfile profile) {
         // Make sure the prefix field is populated.
         // The other fixed fields will be populated once submissions start to flow
         ApiProperty prefixProperty = apiPropertyService.findByKey('prefix')
         ProfileSection fixedSection = profile.sections.find {it.name == 'Predefined/Supplied Fields'}
-        ProfileField prefixField = fixedSection.fields.find {it.metadataPropertyName == 'prefix'}
-        if (!prefixField.currentValue) {
-            prefixField.currentValue = prefixProperty.value
-        }
-
-        ProfileField statusField = fixedSection.fields.find {it.metadataPropertyName == 'status'}
-        if (!statusField.currentValue) {
-            statusField.currentValue = DoiStatusEnum.NOT_SUBMITTED.toString()
-        }
-
+        findAndSetProfileField(fixedSection, 'prefix', prefixProperty.value)
+        findAndSetProfileField(fixedSection, 'status', DoiStatusEnum.NOT_SUBMITTED.toString())
         fixedSection.fields.each {field ->
             if(!field.currentValue) field.currentValue = ''
         }

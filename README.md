@@ -26,7 +26,7 @@ In the `docker-compose.yml` file add:
 mauro-data-mapper:
     build:
         args:
-            ADDITIONAL_PLUGINS: "uk.ac.ox.softeng.maurodatamapper.plugins:mdm-plugin-digital-object-identifiers:1.0.0-SNAPSHOT"
+            ADDITIONAL_PLUGINS: "uk.ac.ox.softeng.maurodatamapper.plugins:mdm-plugin-digital-object-identifiers:1.1.0"
 ```
 
 Please note, if adding more than one plugin, this is a semicolon-separated list
@@ -38,7 +38,7 @@ In the `build.gradle` file add:
 ```groovy
 grails {
     plugins {
-        runtimeOnly 'uk.ac.ox.softeng.maurodatamapper.plugins:mdm-plugin-digital-object-identifiers:1.0.0-SNAPSHOT'
+        runtimeOnly 'uk.ac.ox.softeng.maurodatamapper.plugins:mdm-plugin-digital-object-identifiers:1.1.0'
     }
 }
 ```
