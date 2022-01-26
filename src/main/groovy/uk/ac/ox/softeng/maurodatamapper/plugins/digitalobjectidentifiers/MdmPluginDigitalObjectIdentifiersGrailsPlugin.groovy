@@ -23,7 +23,7 @@ import grails.plugins.Plugin
 class MdmPluginDigitalObjectIdentifiersGrailsPlugin extends Plugin {
 
     // the version or versions of Grails the plugin is designed for
-    def grailsVersion = "4.0.6 > *"
+    def grailsVersion = '5.1.2 > *'
     // resources that are excluded from plugin packaging
     def pluginExcludes = [
         "grails-app/views/error.gsp"
@@ -60,7 +60,7 @@ Handles the profile, endpoints and submission of DOIs to a registry.
     def scm = [url: "https://github.com/mauroDataMapper-plugins/mdm-plugin-digital-object-identifiers"]
 
     def dependsOn = [
-        mdmCore: '4.6.0 > *',
+        mdmCore: '5.0.0 > *',
     ]
 
     Closure doWithSpring() {
