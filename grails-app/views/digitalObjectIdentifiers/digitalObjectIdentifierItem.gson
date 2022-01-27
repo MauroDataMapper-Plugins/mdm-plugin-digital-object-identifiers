@@ -1,6 +1,6 @@
 import uk.ac.ox.softeng.maurodatamapper.core.model.facet.MultiFacetAware
 import uk.ac.ox.softeng.maurodatamapper.security.UserSecurityPolicyManager
-import uk.ac.ox.softeng.maurodatamapper.traits.domain.CreatorAware
+import uk.ac.ox.softeng.maurodatamapper.traits.domain.MdmDomain
 
 import grails.plugin.json.view.template.JsonViewTemplate
 
@@ -15,7 +15,7 @@ def template = (JsonViewTemplate) templateEngine.resolveTemplate(doiItem.class, 
 
 // If we find a "full" template then use that otherwise use the standard grails template resolution whcih should find the "basic" template we've defined
 if (template) {
-    String modelName = Introspector.decapitalize((doiItem as CreatorAware).domainType)
+    String modelName = Introspector.decapitalize((doiItem as MdmDomain).domainType)
     Map<String, Object> modelMap = new HashMap<>()
     modelMap.userSecurityPolicyManager = userSecurityPolicyManager
     modelMap[modelName] = doiItem
