@@ -25,7 +25,7 @@ import grails.core.GrailsApplication
 import org.springframework.context.MessageSource
 
 import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.ADMIN
-import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.getFUNCTIONAL_TEST
+import static uk.ac.ox.softeng.maurodatamapper.core.bootstrap.StandardEmailAddress.FUNCTIONAL_TEST
 
 /*
  * Copyright 2020-2022 University of Oxford and Health and Social Care Information Centre, also known as NHS Digital
