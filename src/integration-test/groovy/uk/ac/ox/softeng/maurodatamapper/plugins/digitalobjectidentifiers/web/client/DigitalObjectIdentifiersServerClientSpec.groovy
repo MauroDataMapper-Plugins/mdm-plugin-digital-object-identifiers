@@ -23,7 +23,6 @@ import uk.ac.ox.softeng.maurodatamapper.test.integration.BaseIntegrationSpec
 
 import grails.core.GrailsApplication
 import grails.testing.mixin.integration.Integration
-import grails.testing.spock.OnceBefore
 import grails.testing.spock.RunOnce
 import groovy.util.logging.Slf4j
 import org.springframework.beans.factory.annotation.Autowired

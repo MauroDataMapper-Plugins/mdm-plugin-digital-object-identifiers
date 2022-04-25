@@ -20,7 +20,6 @@ package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 import uk.ac.ox.softeng.maurodatamapper.core.admin.ApiProperty
 import uk.ac.ox.softeng.maurodatamapper.core.container.Folder
 import uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers.profile.DigitalObjectIdentifiersProfileProviderService
-import uk.ac.ox.softeng.maurodatamapper.util.GormUtils
 
 import grails.core.GrailsApplication
 import org.springframework.context.MessageSource
