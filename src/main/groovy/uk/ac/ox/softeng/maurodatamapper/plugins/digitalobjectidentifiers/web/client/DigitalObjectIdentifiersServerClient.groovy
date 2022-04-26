@@ -120,12 +120,4 @@ class DigitalObjectIdentifiersServerClient {
             throw new ApiInternalException('DOIC03', "Could not load resource from endpoint [${fullUrl}]", ex)
         }
     }
-
-    private static Map extractExceptionBody(HttpClientResponseException responseException) {
-        try {
-            responseException.response.body() as Map
-        } catch (Exception ignored) {
-            [:]
-        }
-    }
 }
