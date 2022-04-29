@@ -19,8 +19,6 @@ package uk.ac.ox.softeng.maurodatamapper.plugins.digitalobjectidentifiers
 
 import uk.ac.ox.softeng.maurodatamapper.core.traits.controller.MdmInterceptor
 
-import java.nio.charset.Charset
-
 class DigitalObjectIdentifiersInterceptor implements MdmInterceptor {
 
     boolean before() {
